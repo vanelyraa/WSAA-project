@@ -34,14 +34,13 @@ class TrackerDAO:
         sql = "SELECT * FROM shipments"
         cursor.execute(sql)
         results = cursor.fetchall()
-        returnArray = []
+        #returnArray = []
         #print(results)
-        for result in results:
+        #for result in results:
             #print(result)
-            returnArray.append(self.convertToDictionary(result))
-
+            #returnArray.append(self.convertToDictionary(result))
         self.closeAll()
         return results
-
+    
 
 trackerDAO = TrackerDAO()
