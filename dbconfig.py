@@ -1,6 +1,12 @@
 mysql = {
-    'host':"localhost",
+    'host':"127.0.0.1",
     'user':"root",
-    'password':"",
-    'database':"datarepresentation"
+    'password':"0205",
+    'database':"shipmenttracker"
 }
+
+# References
+
+# Database shipments table : 
+# https://studio.softr.io/databases/54e371cf-6a9d-4959-8551-d8ab86daa6f5?table=9zczz6usSQKBzW&view=bahXuG7L3QOf7c
+# https://www.kaggle.com/datasets/nicolemachado/transportation-and-logistics-tracking-dataset?resource=download
