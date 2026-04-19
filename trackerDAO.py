@@ -74,39 +74,39 @@ class TrackerDAO:
         self.closeAll()
         return shipment
 
-def update(self, id, shipment):
-    cursor = self.getcursor()
-    sql = "update shipments set status=%s, planned_eta=%s, supplier_code=%s, supplier_name=%s, actual_eta=%s, item_code=%s where id =%s"
-    print(f"update shipment {shipment}")
-    values = (
-        shipment.get("status"),
-        shipment.get("planned_eta"),
-        shipment.get("supplier_code"),
-        shipment.get("supplier_name"),
-        shipment.get("actual_eta"),
-        shipment.get("item_code"),
-        id
-    )
-    cursor.execute(sql, values)
-    self.connection.commit()
-    self.closeAll()
-        
-def delete(self, id):
-    cursor = self.getcursor()
-    sql="delete from shipments where id = %s"
-    values = (id,)
-    cursor.execute(sql, values)
-    self.connection.commit()
-    self.closeAll()
+    def update(self, id, shipment):
+        cursor = self.getcursor()
+        sql = "update shipments set status=%s, planned_eta=%s, supplier_code=%s, supplier_name=%s, actual_eta=%s, item_code=%s where id =%s"
+        print(f"update shipment {shipment}")
+        values = (
+            shipment.get("status"),
+            shipment.get("planned_eta"),
+            shipment.get("supplier_code"),
+            shipment.get("supplier_name"),
+            shipment.get("actual_eta"),
+            shipment.get("item_code"),
+            id
+        )
+        cursor.execute(sql, values)
+        self.connection.commit()
+        self.closeAll()
+            
+    def delete(self, id):
+        cursor = self.getcursor()
+        sql="delete from shipments where id = %s"
+        values = (id,)
+        cursor.execute(sql, values)
+        self.connection.commit()
+        self.closeAll()
 
-def convertToDictionary(self, resultLine):
-    attkeys=['id','status','planned_eta','supplier_code','supplier_name','actual_eta','item_code']
-    shipment = {}
-    currentkey = 0
-    for attrib in resultLine:
-        shipment[attkeys[currentkey]] = attrib
-        currentkey = currentkey + 1 
-    return shipment
+    def convertToDictionary(self, resultLine):
+        attkeys=["id","status","planned_eta","supplier_code","supplier_name","actual_eta","item_code"]
+        shipment = {}
+        currentkey = 0
+        for attrib in resultLine:
+            shipment[attkeys[currentkey]] = attrib
+            currentkey = currentkey + 1 
+        return shipment
 
 trackerDAO = TrackerDAO()
 
