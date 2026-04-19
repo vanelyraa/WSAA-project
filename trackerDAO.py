@@ -56,7 +56,7 @@ class TrackerDAO:
 
     def create(self, shipment):
         cursor = self.getcursor()
-        sql = "insert into shipments (status, planned_eta, supplier_code, supplier_name, actual_eta, item_code)"
+        sql = "insert into shipments (status, planned_eta, supplier_code, supplier_name, actual_eta, item_code) values (%s,%s,%s,%s,%s,%s)"
         values = (
             shipment.get("status"),
             shipment.get("planned_eta"),
