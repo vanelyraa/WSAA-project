@@ -7,6 +7,8 @@ app.config["CORS_HEADERS"] = "Content-Type"
 
 from trackerDAO import trackerDAO
 
+app = Flask(__name__, static_url_path="", static_folder=".")
+
 @app.route('/')
 @cross_origin()
 def index():

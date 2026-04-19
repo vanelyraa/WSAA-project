@@ -1,0 +1,170 @@
+<html>
+    <head>
+        <title>View Shipments</title>
+    </head>
+
+    <body>
+        <h1>Shipments</h1>
+
+        <div>
+            <table class="table" id="shipmentTable">
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Planned ETA</th>
+                    <th>Supplier Code</th>
+                    <th>Supplier Name</th>
+                    <th>Actual ETA</th>
+                    <th>Item Code</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+            </table>
+        </div>
+
+        <div id='createUpdateForm' style="display: none">
+            <h2><span id="createLabel">Create</span> <span id="updateLabel">Update</span> Shipment</h2>
+            <input type="hidden" name="id"/>
+            Status <input type="text" name="status"/><br/>
+            Planned ETA <input type="text" name="planned_eta"/><br/>
+            Supplier Code <input type="text" name="supplier_code"/><br/>
+            Supplier Name <input type="text" name="supplier_name"/><br/>
+            Actual ETA <input type="text" name="actual_eta"/><br/>
+            Item Code <input type="text" name="item_code"/><br/>
+        </div>
+    </body>
+    <script>
+
+    //Control functions
+    function showCreate(){
+        document.getElementById('shipmentTable').style.display="none"
+        document.getElementById('createUpdateForm').style.display="block"
+    }
+
+    function showViewAll(){
+        document.getElementById('shipmentTable').style.display="block"
+        document.getElementById('createUpdateForm').style.display="none"
+    }
+
+    function showUpdate(buttonElement){
+        document.getElementById('shipmentTable').style.display="none"
+        document.getElementById('createUpdateForm').style.display="block"
+
+        var shipment = getShipmentFromRow(rowElement)
+        populateFormWithShipment(shipment)
+    }
+
+    // CRUD functions
+    function doCreate(){
+        var form = document.getElementById("createUpdateForm")
+        var shipment = {}
+
+        shipment.status = form.querySelector("input[name=\"status\"]").value
+        shipment.planned_eta = form.querySelector("input[name=\"planned_eta\"]").value
+        shipment.supplier_code = form.querySelector("input[name=\"supplier_code\"]").value
+        shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value
+        shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value
+        shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
+        console.log(JSON.stringify(shipment))
+    }
+
+    function doUpdate(){
+        var shipment = getShipmentFromForm()
+        var rowElement = document.getElementById(shipment.id)
+        setShipmentInRow(rowElement, shipment)
+
+        clearForm()
+        showViewAll()
+    }
+
+    function doDelete(r){
+        var tableElement = document.getElementById("shipmentTable")
+        var rowElement  = r.parentNode.parentNode
+        var index = rowElement.rowIndex;
+        tableElement.deleteRow(index)
+    }
+
+    // Table functions
+    function addShipmentToTable(shipment){
+        var tableElement = document.getElementById("shipmentTable")
+        var rowElement = tableElement.insertRow(-1)
+
+        rowElement.setAttribute("id",shipment.id)
+
+        var cell1 = rowElement.insertCell(0);
+        cell1.innerHTML = shipment.id
+        var cell2 = rowElement.insertCell(1);
+        cell2.innerHTML = shipment.status
+        var cell3 = rowElement.insertCell(2);
+        cell3.innerHTML = shipment.planned_eta
+        var cell4 = rowElement.insertCell(3);
+        cell4.innerHTML = shipment.supplier_code
+        var cell5 = rowElement.insertCell(4);
+        cell5.innerHTML = shipment.supplier_name
+        var cell6 = rowElement.insertCell(5);
+        cell6.innerHTML = shipment.actual_eta
+        var cell7 = rowElement.insertCell(6);
+        cell7.innerHTML = shipment.item_code}
+
+    // Forms
+    function clearForm(){
+        var form = document.getElementById("createUpdateForm")
+
+        form.querySelector("input[name=\"status\"]").value = ""
+        form.querySelector("input[name=\"planned_eta\"]").value = ""
+        form.querySelector("input[name=\"supplier_code\"]").value = ""
+        form.querySelector("input[name=\"supplier_name\"]").value = ""
+        form.querySelector("input[name=\"actual_eta\"]").value = ""
+        form.querySelector("input[name=\"item_code\"]").value = ""
+    }
+
+    function getShipmentFromRow(rowElement){
+    var ship = {}
+
+    shipment.id = rowElement.getAttribute("id")
+    shipment.status = rowElement.cells[1].innerHTML
+    shipment.planned_eta = rowElement.cells[2].innerHTML
+    shipment.supplier_code = rowElement.cells[3].innerHTML
+    shipment.supplier_name = rowElement.cells[4].innerHTML
+    shipment.actual_eta = rowElement.cells[5].innerHTML
+    shipment.item_code = rowElement.cells[6].innerHTML
+    return shipment
+    }
+
+    function setShipmentInRow(rowElement, shipment){
+        rowElement.cells[0].firstChild.textContent = shipment.id
+        rowElement.cells[1].firstChild.textContent = shipment.status
+        rowElement.cells[2].firstChild.textContent = shipment.planned_eta
+        rowElement.cells[3].firstChild.textContent = shipment.supplier_code
+        rowElement.cells[4].firstChild.textContent = shipment.supplier_name
+        rowElement.cells[5].firstChild.textContent = shipment.actual_eta
+        rowElement.cells[6].firstChild.textContent = shipment.item_code
+    }
+
+    function populateFormWithShipment(shipment){
+        var form = document.getElementById("createUpdateForm")
+
+        form.querySelector("input[name=\"id\"]").value = shipment.id
+        form.querySelector("input[name=\"status\"]").value = shipment.status
+        form.querySelector("input[name=\"planned_eta\"]").value = shipment.planned_eta
+        form.querySelector("input[name=\"supplier_code\"]").value = shipment.supplier_code
+        form.querySelector("input[name=\"supplier_name\"]").value = shipment.supplier_name
+        form.querySelector("input[name=\"actual_eta\"]").value = shipment.actual_eta
+        form.querySelector("input[name=\"item_code\"]").value = shipment.item_code
+        return shipment
+    }
+
+    function getShipmentFromForm(){
+        var form = document.getElementById("createUpdateForm")
+        var shipment ={}
+        shipment.id = form.querySelector("input[name=\"id\"]").value,
+        shipment.status = form.querySelector("input[name=\"status\"]").value,
+        shipment.planned_eta = form.querySelector("input[name=\"planned_eta\"]").value,
+        shipment.supplier_code = form.querySelector("input[name=\"supplier_code\"]").value,
+        shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value,
+        shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value,
+        shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
+    }
+    
+    </script>
+</html>
