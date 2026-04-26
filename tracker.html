@@ -1,10 +1,12 @@
 <html>
     <head>
         <title>View Shipments</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
 
     <body>
         <h1>Shipments</h1>
+        <div> <button id="showCreateButton" onclick="showCreate()">Create</button></div>
 
         <div>
             <table class="table" id="shipmentTable">
@@ -50,6 +52,7 @@
         document.getElementById('shipmentTable').style.display="none"
         document.getElementById('createUpdateForm').style.display="block"
 
+        var rowElement = buttonElement.parentNode.parentNode
         var shipment = getShipmentFromRow(rowElement)
         populateFormWithShipment(shipment)
     }
@@ -65,12 +68,13 @@
         shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value
         shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value
         shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
-        console.log(JSON.stringify(shipment))
+        createShipmentAjax(shipment)
     }
 
     function doUpdate(){
         var shipment = getShipmentFromForm()
         var rowElement = document.getElementById(shipment.id)
+        updateShipmentAjax(shipment)
         setShipmentInRow(rowElement, shipment)
 
         clearForm()
@@ -81,6 +85,7 @@
         var tableElement = document.getElementById("shipmentTable")
         var rowElement  = r.parentNode.parentNode
         var index = rowElement.rowIndex;
+        deleteShipmentAjax(rowElement.getAttribute("id"))
         tableElement.deleteRow(index)
     }
 
@@ -105,6 +110,10 @@
         cell6.innerHTML = shipment.actual_eta
         var cell7 = rowElement.insertCell(6);
         cell7.innerHTML = shipment.item_code}
+        var cell8 = rowElement.insertCell(7)
+        cell8.innerHTML = '<button onclick="showUpdate(this)">Update</button>'
+        var cell9 = rowElement.insertCell(8)
+        cell9.innerHTML = '<button onclick="doDelete(this)">Delete</button>'
 
     // Forms
     function clearForm(){
@@ -164,7 +173,77 @@
         shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value,
         shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value,
         shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
+        return shipment
     }
+
+    // Ajax functions
+    function getAllAjax(){
+    $.ajax({
+        "url": "/shipments",
+        "method":"GET",
+        "dataType": "JSON",
+        "success":function(result){
+            for (shipment of result){
+                addShipmentToTable(shipment)
+            }
+        },
+        "error":function(xhr,status,error){
+            console.log("error: "+status+" msg:"+error)
+        }
+    });
+}
+
+function createShipmentAjax(shipment){
+    $.ajax({
+        "url": "/shipments",
+        "method":"POST",
+        "data":JSON.stringify(shipment),
+        "dataType": "JSON",
+        contentType: "application/json; charset=utf-8",
+        "success":function(result){
+            shipment.id = result.id
+            addShipmentToTable(shipment)
+            clearForm()
+            showViewAll()
+        },
+        "error":function(xhr,status,error){
+            console.log("error: "+status+" msg:"+error)
+        }
+    });
+}
+
+function updateShipmentAjax(shipment){
+    $.ajax({
+        "url": "/shipments/"+encodeURI(shipment.id),
+        "method":"PUT",
+        "data":JSON.stringify(shipment),
+        "dataType": "JSON",
+        contentType: "application/json; charset=utf-8",
+        "success":function(result){
+            console.log(result)
+        },
+        "error":function(xhr,status,error){
+            console.log("error: "+status+" msg:"+error)
+        }
+    });
+}
+
+function deleteShipmentAjax(id){
+    $.ajax({
+        "url": "/shipments/"+encodeURI(id),
+        "method":"DELETE",
+        "dataType": "JSON",
+        contentType: "application/json; charset=utf-8",
+        "success":function(result){
+            console.log(result);                  
+        },
+        "error":function(xhr,status,error){
+            console.log("error: "+status+" msg:"+error);
+        }
+    });    
+}
+
+getAllAjax()
     
     </script>
 </html>
