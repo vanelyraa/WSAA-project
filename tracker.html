@@ -49,8 +49,8 @@
     }
 
     function showUpdate(buttonElement){
-        document.getElementById('shipmentTable').style.display="none"
-        document.getElementById('createUpdateForm').style.display="block"
+        document.getElementById("shipmentTable").style.display="none"
+        document.getElementById("createUpdateForm").style.display="block"
 
         var rowElement = buttonElement.parentNode.parentNode
         var shipment = getShipmentFromRow(rowElement)
@@ -109,11 +109,12 @@
         var cell6 = rowElement.insertCell(5);
         cell6.innerHTML = shipment.actual_eta
         var cell7 = rowElement.insertCell(6);
-        cell7.innerHTML = shipment.item_code}
+        cell7.innerHTML = shipment.item_code
         var cell8 = rowElement.insertCell(7)
         cell8.innerHTML = '<button onclick="showUpdate(this)">Update</button>'
         var cell9 = rowElement.insertCell(8)
         cell9.innerHTML = '<button onclick="doDelete(this)">Delete</button>'
+    }
 
     // Forms
     function clearForm(){
@@ -179,7 +180,7 @@
     // Ajax functions
     function getAllAjax(){
     $.ajax({
-        "url": "/shipments",
+        "url": "http://127.0.0.1:5000/shipments",
         "method":"GET",
         "dataType": "JSON",
         "success":function(result){
@@ -195,7 +196,7 @@
 
 function createShipmentAjax(shipment){
     $.ajax({
-        "url": "/shipments",
+        "url": "http://127.0.0.1:5000/shipments",
         "method":"POST",
         "data":JSON.stringify(shipment),
         "dataType": "JSON",
@@ -214,7 +215,7 @@ function createShipmentAjax(shipment){
 
 function updateShipmentAjax(shipment){
     $.ajax({
-        "url": "/shipments/"+encodeURI(shipment.id),
+        "url": "http://127.0.0.1:5000/shipments" + encodeURI(shipment.id),
         "method":"PUT",
         "data":JSON.stringify(shipment),
         "dataType": "JSON",
@@ -230,7 +231,7 @@ function updateShipmentAjax(shipment){
 
 function deleteShipmentAjax(id){
     $.ajax({
-        "url": "/shipments/"+encodeURI(id),
+        "url": "http://127.0.0.1:5000/shipments"+encodeURI(id),
         "method":"DELETE",
         "dataType": "JSON",
         contentType: "application/json; charset=utf-8",
