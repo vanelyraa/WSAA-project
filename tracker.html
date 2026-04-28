@@ -1,256 +1,346 @@
 <html>
-    <head>
-        <title>View Shipments</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    </head>
 
-    <body>
-        <h1>Shipments</h1>
-        <div> <button id="showCreateButton" onclick="showCreate()">Create</button></div>
+<head>
+    <style>
+        body {
+            background-color: #c1f4be;
+            font-family: Arial;
+        }
 
-        <div>
-            <table class="table" id="shipmentTable">
-                <tr>
-                    <th>ID</th>
-                    <th>Status</th>
-                    <th>Planned ETA</th>
-                    <th>Supplier Code</th>
-                    <th>Supplier Name</th>
-                    <th>Actual ETA</th>
-                    <th>Item Code</th>
-                    <th>Update</th>
-                    <th>Delete</th>
-                </tr>
-            </table>
-        </div>
+        h1 {
+            display: block;
+            font-size: 2em;
+            margin-top: 0.67em;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            color: #0d4a28;
+        }
 
-        <div id='createUpdateForm' style="display: none">
-            <h2><span id="createLabel">Create</span> <span id="updateLabel">Update</span> Shipment</h2>
-            <input type="hidden" name="id"/>
-            Status <input type="text" name="status"/><br/>
-            Planned ETA <input type="text" name="planned_eta"/><br/>
-            Supplier Code <input type="text" name="supplier_code"/><br/>
-            Supplier Name <input type="text" name="supplier_name"/><br/>
-            Actual ETA <input type="text" name="actual_eta"/><br/>
-            Item Code <input type="text" name="item_code"/><br/>
+        table {
+            width: 100%;
+            margin: auto;
+            border-collapse: collapse;
+            background-color: #e8e8e8;
+            border-left: 1px solid #0d4a28;
+            border-right: 1px solid #0d4a28;
+            margin-top: 20px;
+        }
 
-            <button onclick="doCreate()">Create</button>
-            <button onclick="doUpdate()">Update</button>
-        </div>
-    </body>
-    <script>
+        th {
+            background-color: #4fa776;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #0d4a28;
+        }
 
+        td {
+            padding: 10px;
+            text-align: center;
+            border: none;
+            border-bottom: 1px solid #0d4a28;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #dcdcdc;
+        }
+
+        button {
+            background-color: #4fa776;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+    <title>Shipments</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>SHIPMENTS TRACKER</h1>
+    <div>
+        <button id="showCreateButton" onclick="showCreate()">Create</button>
+    </div>
+
+    <div>
+        <table class="table" id="shipmentTable">
+            <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Planned ETA</th>
+                <th>Supplier Code</th>
+                <th>Supplier Name</th>
+                <th>Actual ETA</th>
+                <th>Item Code</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </table>
+    </div>
+
+    <div id="createUpdateForm" style="display: none">
+        <h2>
+            <span id="createLabel">Create or </span>
+            <span id="updateLabel">update shipment</span> 
+        </h2>
+        <input type="hidden" name="id" />
+        Status <input type="text" name="status" /><br />
+        Planned ETA <input type="text" name="planned_eta" /><br />
+        Supplier Code <input type="text" name="supplier_code" /><br />
+        Supplier Name <input type="text" name="supplier_name" /><br />
+        Actual ETA <input type="text" name="actual_eta" /><br />
+        Item Code <input type="text" name="item_code" /><br />
+
+        <button onclick="doCreate()">Create</button>
+        <button onclick="doUpdate()">Update</button>
+    </div>
+</body>
+<script>
     //Control functions
-    function showCreate(){
-        document.getElementById('shipmentTable').style.display="none"
-        document.getElementById('createUpdateForm').style.display="block"
+    function showCreate() {
+        document.getElementById("shipmentTable").style.display = "none";
+        document.getElementById("createUpdateForm").style.display = "block";
     }
 
-    function showViewAll(){
-        document.getElementById('shipmentTable').style.display="block"
-        document.getElementById('createUpdateForm').style.display="none"
+    function showViewAll() {
+        document.getElementById("shipmentTable").style.display = "block";
+        document.getElementById("createUpdateForm").style.display = "none";
     }
 
-    function showUpdate(buttonElement){
-        document.getElementById("shipmentTable").style.display="none"
-        document.getElementById("createUpdateForm").style.display="block"
+    function showUpdate(buttonElement) {
+        document.getElementById("shipmentTable").style.display = "none";
+        document.getElementById("createUpdateForm").style.display = "block";
 
-        var rowElement = buttonElement.parentNode.parentNode
-        var shipment = getShipmentFromRow(rowElement)
-        populateFormWithShipment(shipment)
+        var rowElement = buttonElement.parentNode.parentNode;
+        var shipment = getShipmentFromRow(rowElement);
+        populateFormWithShipment(shipment);
     }
 
     // CRUD functions
-    function doCreate(){
-        var form = document.getElementById("createUpdateForm")
-        var shipment = {}
+    function doCreate() {
+        var form = document.getElementById("createUpdateForm");
+        var shipment = {};
 
-        shipment.status = form.querySelector("input[name=\"status\"]").value
-        shipment.planned_eta = form.querySelector("input[name=\"planned_eta\"]").value
-        shipment.supplier_code = form.querySelector("input[name=\"supplier_code\"]").value
-        shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value
-        shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value
-        shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
-        createShipmentAjax(shipment)
+        shipment.status = form.querySelector('input[name="status"]').value;
+        shipment.planned_eta = form.querySelector(
+            'input[name="planned_eta"]',
+        ).value;
+        shipment.supplier_code = form.querySelector(
+            'input[name="supplier_code"]',
+        ).value;
+        shipment.supplier_name = form.querySelector(
+            'input[name="supplier_name"]',
+        ).value;
+        shipment.actual_eta = form.querySelector(
+            'input[name="actual_eta"]',
+        ).value;
+        shipment.item_code = form.querySelector('input[name="item_code"]').value;
+        createShipmentAjax(shipment);
     }
 
-    function doUpdate(){
-        var shipment = getShipmentFromForm()
-        var rowElement = document.getElementById(shipment.id)
-        updateShipmentAjax(shipment)
-        setShipmentInRow(rowElement, shipment)
+    function doUpdate() {
+        var shipment = getShipmentFromForm();
+        var rowElement = document.getElementById(shipment.id);
+        updateShipmentAjax(shipment);
+        setShipmentInRow(rowElement, shipment);
 
-        clearForm()
-        showViewAll()
+        clearForm();
+        showViewAll();
     }
 
-    function doDelete(r){
-        var tableElement = document.getElementById("shipmentTable")
-        var rowElement  = r.parentNode.parentNode
+    function doDelete(r) {
+        var tableElement = document.getElementById("shipmentTable");
+        var rowElement = r.parentNode.parentNode;
         var index = rowElement.rowIndex;
-        deleteShipmentAjax(rowElement.getAttribute("id"))
-        tableElement.deleteRow(index)
+        deleteShipmentAjax(rowElement.getAttribute("id"));
+        tableElement.deleteRow(index);
     }
 
     // Table functions
-    function addShipmentToTable(shipment){
-        var tableElement = document.getElementById("shipmentTable")
-        var rowElement = tableElement.insertRow(-1)
+    function addShipmentToTable(shipment) {
+        var tableElement = document.getElementById("shipmentTable");
+        var rowElement = tableElement.insertRow(-1);
 
-        rowElement.setAttribute("id",shipment.id)
+        rowElement.setAttribute("id", shipment.id);
 
         var cell1 = rowElement.insertCell(0);
-        cell1.innerHTML = shipment.id
+        cell1.innerHTML = shipment.id;
         var cell2 = rowElement.insertCell(1);
-        cell2.innerHTML = shipment.status
+        cell2.innerHTML = shipment.status;
         var cell3 = rowElement.insertCell(2);
-        cell3.innerHTML = shipment.planned_eta
+        cell3.innerHTML = shipment.planned_eta;
         var cell4 = rowElement.insertCell(3);
-        cell4.innerHTML = shipment.supplier_code
+        cell4.innerHTML = shipment.supplier_code;
         var cell5 = rowElement.insertCell(4);
-        cell5.innerHTML = shipment.supplier_name
+        cell5.innerHTML = shipment.supplier_name;
         var cell6 = rowElement.insertCell(5);
-        cell6.innerHTML = shipment.actual_eta
+        cell6.innerHTML = shipment.actual_eta;
         var cell7 = rowElement.insertCell(6);
-        cell7.innerHTML = shipment.item_code
-        var cell8 = rowElement.insertCell(7)
-        cell8.innerHTML = '<button onclick="showUpdate(this)">Update</button>'
-        var cell9 = rowElement.insertCell(8)
-        cell9.innerHTML = '<button onclick="doDelete(this)">Delete</button>'
+        cell7.innerHTML = shipment.item_code;
+        var cell8 = rowElement.insertCell(7);
+        cell8.innerHTML = '<button onclick="showUpdate(this)">Update</button>';
+        var cell9 = rowElement.insertCell(8);
+        cell9.innerHTML = '<button onclick="doDelete(this)">Delete</button>';
     }
 
     // Forms
-    function clearForm(){
-        var form = document.getElementById("createUpdateForm")
+    function clearForm() {
+        var form = document.getElementById("createUpdateForm");
 
-        form.querySelector("input[name=\"status\"]").value = ""
-        form.querySelector("input[name=\"planned_eta\"]").value = ""
-        form.querySelector("input[name=\"supplier_code\"]").value = ""
-        form.querySelector("input[name=\"supplier_name\"]").value = ""
-        form.querySelector("input[name=\"actual_eta\"]").value = ""
-        form.querySelector("input[name=\"item_code\"]").value = ""
+        form.querySelector('input[name="status"]').value = "";
+        form.querySelector('input[name="planned_eta"]').value = "";
+        form.querySelector('input[name="supplier_code"]').value = "";
+        form.querySelector('input[name="supplier_name"]').value = "";
+        form.querySelector('input[name="actual_eta"]').value = "";
+        form.querySelector('input[name="item_code"]').value = "";
     }
 
-    function getShipmentFromRow(rowElement){
-    var ship = {}
+    function getShipmentFromRow(rowElement) {
+        var ship = {};
 
-    shipment.id = rowElement.getAttribute("id")
-    shipment.status = rowElement.cells[1].innerHTML
-    shipment.planned_eta = rowElement.cells[2].innerHTML
-    shipment.supplier_code = rowElement.cells[3].innerHTML
-    shipment.supplier_name = rowElement.cells[4].innerHTML
-    shipment.actual_eta = rowElement.cells[5].innerHTML
-    shipment.item_code = rowElement.cells[6].innerHTML
-    return shipment
+        shipment.id = rowElement.getAttribute("id");
+        shipment.status = rowElement.cells[1].innerHTML;
+        shipment.planned_eta = rowElement.cells[2].innerHTML;
+        shipment.supplier_code = rowElement.cells[3].innerHTML;
+        shipment.supplier_name = rowElement.cells[4].innerHTML;
+        shipment.actual_eta = rowElement.cells[5].innerHTML;
+        shipment.item_code = rowElement.cells[6].innerHTML;
+        return shipment;
     }
 
-    function setShipmentInRow(rowElement, shipment){
-        rowElement.cells[0].firstChild.textContent = shipment.id
-        rowElement.cells[1].firstChild.textContent = shipment.status
-        rowElement.cells[2].firstChild.textContent = shipment.planned_eta
-        rowElement.cells[3].firstChild.textContent = shipment.supplier_code
-        rowElement.cells[4].firstChild.textContent = shipment.supplier_name
-        rowElement.cells[5].firstChild.textContent = shipment.actual_eta
-        rowElement.cells[6].firstChild.textContent = shipment.item_code
+    function setShipmentInRow(rowElement, shipment) {
+        rowElement.cells[0].firstChild.textContent = shipment.id;
+        rowElement.cells[1].firstChild.textContent = shipment.status;
+        rowElement.cells[2].firstChild.textContent = shipment.planned_eta;
+        rowElement.cells[3].firstChild.textContent = shipment.supplier_code;
+        rowElement.cells[4].firstChild.textContent = shipment.supplier_name;
+        rowElement.cells[5].firstChild.textContent = shipment.actual_eta;
+        rowElement.cells[6].firstChild.textContent = shipment.item_code;
     }
 
-    function populateFormWithShipment(shipment){
-        var form = document.getElementById("createUpdateForm")
+    function populateFormWithShipment(shipment) {
+        var form = document.getElementById("createUpdateForm");
 
-        form.querySelector("input[name=\"id\"]").value = shipment.id
-        form.querySelector("input[name=\"status\"]").value = shipment.status
-        form.querySelector("input[name=\"planned_eta\"]").value = shipment.planned_eta
-        form.querySelector("input[name=\"supplier_code\"]").value = shipment.supplier_code
-        form.querySelector("input[name=\"supplier_name\"]").value = shipment.supplier_name
-        form.querySelector("input[name=\"actual_eta\"]").value = shipment.actual_eta
-        form.querySelector("input[name=\"item_code\"]").value = shipment.item_code
-        return shipment
+        form.querySelector('input[name="id"]').value = shipment.id;
+        form.querySelector('input[name="status"]').value = shipment.status;
+        form.querySelector('input[name="planned_eta"]').value =
+            shipment.planned_eta;
+        form.querySelector('input[name="supplier_code"]').value =
+            shipment.supplier_code;
+        form.querySelector('input[name="supplier_name"]').value =
+            shipment.supplier_name;
+        form.querySelector('input[name="actual_eta"]').value =
+            shipment.actual_eta;
+        form.querySelector('input[name="item_code"]').value = shipment.item_code;
+        return shipment;
     }
 
-    function getShipmentFromForm(){
-        var form = document.getElementById("createUpdateForm")
-        var shipment ={}
-        shipment.id = form.querySelector("input[name=\"id\"]").value,
-        shipment.status = form.querySelector("input[name=\"status\"]").value,
-        shipment.planned_eta = form.querySelector("input[name=\"planned_eta\"]").value,
-        shipment.supplier_code = form.querySelector("input[name=\"supplier_code\"]").value,
-        shipment.supplier_name = form.querySelector("input[name=\"supplier_name\"]").value,
-        shipment.actual_eta = form.querySelector("input[name=\"actual_eta\"]").value,
-        shipment.item_code = form.querySelector("input[name=\"item_code\"]").value
-        return shipment
+    function getShipmentFromForm() {
+        var form = document.getElementById("createUpdateForm");
+        var shipment = {};
+        ((shipment.id = form.querySelector('input[name="id"]').value),
+            (shipment.status = form.querySelector('input[name="status"]').value),
+            (shipment.planned_eta = form.querySelector(
+                'input[name="planned_eta"]',
+            ).value),
+            (shipment.supplier_code = form.querySelector(
+                'input[name="supplier_code"]',
+            ).value),
+            (shipment.supplier_name = form.querySelector(
+                'input[name="supplier_name"]',
+            ).value),
+            (shipment.actual_eta = form.querySelector(
+                'input[name="actual_eta"]',
+            ).value),
+            (shipment.item_code = form.querySelector(
+                'input[name="item_code"]',
+            ).value));
+        return shipment;
     }
 
     // Ajax functions
-    function getAllAjax(){
-    $.ajax({
-        "url": "http://127.0.0.1:5000/shipments",
-        "method":"GET",
-        "dataType": "JSON",
-        "success":function(result){
-            for (shipment of result){
-                addShipmentToTable(shipment)
-            }
-        },
-        "error":function(xhr,status,error){
-            console.log("error: "+status+" msg:"+error)
-        }
-    });
-}
+    function getAllAjax() {
+        $.ajax({
+            url: "http://127.0.0.1:5000/shipments",
+            method: "GET",
+            dataType: "JSON",
+            success: function (result) {
+                for (shipment of result) {
+                    addShipmentToTable(shipment);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
+            },
+        });
+    }
 
-function createShipmentAjax(shipment){
-    $.ajax({
-        "url": "http://127.0.0.1:5000/shipments",
-        "method":"POST",
-        "data":JSON.stringify(shipment),
-        "dataType": "JSON",
-        contentType: "application/json; charset=utf-8",
-        "success":function(result){
-            shipment.id = result.id
-            addShipmentToTable(shipment)
-            clearForm()
-            showViewAll()
-        },
-        "error":function(xhr,status,error){
-            console.log("error: "+status+" msg:"+error)
-        }
-    });
-}
+    function createShipmentAjax(shipment) {
+        $.ajax({
+            url: "http://127.0.0.1:5000/shipments",
+            method: "POST",
+            data: JSON.stringify(shipment),
+            dataType: "JSON",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                shipment.id = result.id;
+                addShipmentToTable(shipment);
+                clearForm();
+                showViewAll();
+            },
+            error: function (xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
+            },
+        });
+    }
 
-function updateShipmentAjax(shipment){
-    $.ajax({
-        "url": "http://127.0.0.1:5000/shipments/" + encodeURI(shipment.id),
-        "method":"PUT",
-        "data":JSON.stringify(shipment),
-        "dataType": "JSON",
-        contentType: "application/json; charset=utf-8",
-        "success":function(result){
-            console.log(result)
-        },
-        "error":function(xhr,status,error){
-            console.log("error: "+status+" msg:"+error)
-        }
-    });
-}
+    function updateShipmentAjax(shipment) {
+        $.ajax({
+            url: "http://127.0.0.1:5000/shipments/" + encodeURI(shipment.id),
+            method: "PUT",
+            data: JSON.stringify(shipment),
+            dataType: "JSON",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                console.log(result);
+            },
+            error: function (xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
+            },
+        });
+    }
 
-function deleteShipmentAjax(id){
-    $.ajax({
-        "url": "http://127.0.0.1:5000/shipments/"+encodeURI(id),
-        "method":"DELETE",
-        "dataType": "JSON",
-        contentType: "application/json; charset=utf-8",
-        "success":function(result){
-            console.log(result);                  
-        },
-        "error":function(xhr,status,error){
-            console.log("error: "+status+" msg:"+error);
-        }
-    });    
-}
+    function deleteShipmentAjax(id) {
+        $.ajax({
+            url: "http://127.0.0.1:5000/shipments/" + encodeURI(id),
+            method: "DELETE",
+            dataType: "JSON",
+            contentType: "application/json; charset=utf-8",
+            success: function (result) {
+                console.log(result);
+            },
+            error: function (xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
+            },
+        });
+    }
 
-getAllAjax()
+    getAllAjax();
+</script>
 
-//Updating url: "http://127.0.0.1:5000/shipments: From DevTools GET http://127.0.0.1:5500/shipments 404 (Not Found)
-
-    </script>
 </html>
 
+<!--Updating url: "http://127.0.0.1:5000/shipments: From DevTools GET http://127.0.0.1:5500/shipments 404 (Not Found)
+Heading settings: https://www.w3schools.com/tags/tag_hn.asp
+HTML color codes: https://htmlcolorcodes.com/
+Borders and hover over: https://www.tutorialspoint.com/article/how-to-create-a-comparison-table-with-css
+Paddings: https://www.w3schools.com/css/css_padding.asp
+Button styling: https://www.w3schools.com/css/css3_buttons.asp  -->
