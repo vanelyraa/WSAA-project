@@ -33,6 +33,9 @@
             Supplier Name <input type="text" name="supplier_name"/><br/>
             Actual ETA <input type="text" name="actual_eta"/><br/>
             Item Code <input type="text" name="item_code"/><br/>
+
+            <button onclick="doCreate()">Create</button>
+            <button onclick="doUpdate()">Update</button>
         </div>
     </body>
     <script>
@@ -215,7 +218,7 @@ function createShipmentAjax(shipment){
 
 function updateShipmentAjax(shipment){
     $.ajax({
-        "url": "http://127.0.0.1:5000/shipments" + encodeURI(shipment.id),
+        "url": "http://127.0.0.1:5000/shipments/" + encodeURI(shipment.id),
         "method":"PUT",
         "data":JSON.stringify(shipment),
         "dataType": "JSON",
@@ -231,7 +234,7 @@ function updateShipmentAjax(shipment){
 
 function deleteShipmentAjax(id){
     $.ajax({
-        "url": "http://127.0.0.1:5000/shipments"+encodeURI(id),
+        "url": "http://127.0.0.1:5000/shipments/"+encodeURI(id),
         "method":"DELETE",
         "dataType": "JSON",
         contentType: "application/json; charset=utf-8",
@@ -245,6 +248,9 @@ function deleteShipmentAjax(id){
 }
 
 getAllAjax()
-    
+
+//Updating url: "http://127.0.0.1:5000/shipments: From DevTools GET http://127.0.0.1:5500/shipments 404 (Not Found)
+
     </script>
 </html>
+
