@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS, cross_origin
+from flask import render_template
 
 app = Flask(__name__, static_url_path="", static_folder=".")
 cors = CORS(app)
@@ -10,7 +11,7 @@ from trackerDAO import trackerDAO
 @app.route('/')
 @cross_origin()
 def index():
-    return "Server working"
+    return render_template("tracker.html")
 
 # GET all shipments
 @app.route("/shipments")
@@ -81,3 +82,6 @@ def delete(id):
 # Run application
 if __name__ == "__main__":
     app.run(debug = True)
+
+
+# Render template: https://stackoverflow.com/questions/63333562/best-practice-of-flask-route-for-app-route-index-or-index-html
