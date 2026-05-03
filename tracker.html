@@ -66,6 +66,9 @@
     </style>
     <title>Shipments</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
 </head>
 
 <body>
@@ -73,8 +76,15 @@
     <div>
         <button id="showCreateButton" onclick="showCreate()">Create</button>
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
+        
+        <select id="statusFilter">       
+        <option value="">Show all - status</option>
+        <option value="In transit">In transit</option>
+        <option value="Delayed">Delayed</option>
+        <option value="Delivered on time">Delivered on time</option>
+        <option value="Delivered late">Delivered late</option>
+    </select>
     </div>
-
     <div>
         <table class="table" id="shipmentTable">
             <tr>
@@ -191,6 +201,26 @@
     }
 }
 
+    function RemoveProduct() {
+        return confirm("Are you sure you want to delete this shipment?");
+    }
+    $('#statusFilter').change(function() {
+    var selected = $(this).val();
+    var rows = $('#shipmentTable tr');
+
+    rows.each(function(index) {
+        if (index === 0) return; // skip header
+
+        var status = $(this).find('td:eq(1)').text();
+
+        if (!selected || status === selected) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+});
+
 
     //Control functions
     function showCreate() {
@@ -246,6 +276,7 @@
     }
 
     function doDelete(r) {
+        if (!RemoveProduct()) return;
         var tableElement = document.getElementById("shipmentTable");
         var rowElement = r.parentNode.parentNode;
         var index = rowElement.rowIndex;
@@ -467,4 +498,6 @@ Get current date value when no new date is selected in update function: https://
 Converting date format:https://stackoverflow.com/questions/27087128/convert-dd-mm-yyyy-to-yyyy-mm-dd-format-using-javascript
 Search bar, filter data: https://stackoverflow.com/questions/43622127/filtering-table-multiple-columns/43622296
 Background color line: https://www.sitepoint.com/background-colors-javascript/
+Delete confirmation: https://stackoverflow.com/questions/12073352/use-confirm-as-a-condition-to-if
+Dropdown filter: https://www.geeksforgeeks.org/html/html-dropdown/
 -->
