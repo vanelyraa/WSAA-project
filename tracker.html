@@ -72,7 +72,7 @@
     <h1>SHIPMENTS TRACKER</h1>
     <div>
         <button id="showCreateButton" onclick="showCreate()">Create</button>
-        
+        <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
     </div>
 
     <div>
@@ -157,7 +157,41 @@
         if (dateString.includes("-")) return dateString;
 
         return dateString.split("/").reverse().join("-");
+    }
+    
+    function filterTable() {
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("shipmentTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) {
+        var tdStatus = tr[i].getElementsByTagName("td")[1];
+        var tdSupplierCode = tr[i].getElementsByTagName("td")[3];
+        var tdSupplierName = tr[i].getElementsByTagName("td")[4];
+        var tdItemCode = tr[i].getElementsByTagName("td")[6];
+
+        if (tdStatus || tdSupplierCode || tdSupplierName || tdItemCode) {
+            var txtStatus = tdStatus.textContent || tdStatus.innerText;
+            var txtCode = tdSupplierCode.textContent || tdSupplierCode.innerText;
+            var txtName = tdSupplierName.textContent || tdSupplierName.innerText;
+            var txtItem = tdItemCode.textContent || tdItemCode.innerText;
+
+            if (
+                txtStatus.toUpperCase().indexOf(filter) > -1 ||
+                txtCode.toUpperCase().indexOf(filter) > -1 ||
+                txtName.toUpperCase().indexOf(filter) > -1 ||
+                txtItem.toUpperCase().indexOf(filter) > -1
+            ) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
 }
+
+
     //Control functions
     function showCreate() {
         document.getElementById("shipmentTable").style.display = "none";
@@ -229,7 +263,12 @@
         var cell1 = rowElement.insertCell(0);
         cell1.innerHTML = shipment.id;
         var cell2 = rowElement.insertCell(1);
-        cell2.innerHTML = calculateStatus(shipment.planned_eta, shipment.actual_eta)
+        var status = calculateStatus(shipment.planned_eta, shipment.actual_eta);
+        cell2.innerHTML = status;
+
+        if (status === "Delayed") {
+            rowElement.style.backgroundColor = "#ffcccc";
+}
         var cell3 = rowElement.insertCell(2);
         cell3.innerHTML = formatDateShort(shipment.planned_eta);
         var cell4 = rowElement.insertCell(3);
@@ -272,7 +311,13 @@
 
     function setShipmentInRow(rowElement, shipment) {
         rowElement.cells[0].firstChild.textContent = shipment.id;
-        rowElement.cells[1].innerHTML = calculateStatus(shipment.planned_eta, shipment.actual_eta);
+        
+        var status = calculateStatus(shipment.planned_eta, shipment.actual_eta);        
+        rowElement.cells[1].innerHTML = status;        
+        if (status === "Delayed") {
+            rowElement.style.backgroundColor = "#ffcccc";
+        }
+
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
         rowElement.cells[3].firstChild.textContent = shipment.supplier_code;
         rowElement.cells[4].firstChild.textContent = shipment.supplier_name;
@@ -420,4 +465,6 @@ Date function for status: https://stackoverflow.com/questions/69167898/javascrip
 dae input formatting: https://stackoverflow.com/questions/25159330/how-to-convert-an-iso-date-to-the-date-format-yyyy-mm-dd
 Get current date value when no new date is selected in update function: https://stackoverflow.com/questions/3072233/getting-value-from-table-cell-in-javascript-not-jquery
 Converting date format:https://stackoverflow.com/questions/27087128/convert-dd-mm-yyyy-to-yyyy-mm-dd-format-using-javascript
+Search bar, filter data: https://stackoverflow.com/questions/43622127/filtering-table-multiple-columns/43622296
+Background color line: https://www.sitepoint.com/background-colors-javascript/
 -->
