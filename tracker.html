@@ -60,8 +60,9 @@
             font-weight: bold;
         }
         #createUpdateForm input {
-        margin-bottom: 10px; 
+            margin-bottom: 10px; 
         }
+        
     </style>
     <title>Shipments</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -71,6 +72,7 @@
     <h1>SHIPMENTS TRACKER</h1>
     <div>
         <button id="showCreateButton" onclick="showCreate()">Create</button>
+        
     </div>
 
     <div>
@@ -96,7 +98,6 @@
             <span id="updateLabel">update shipment</span> 
         </h2>
         <input type="hidden" name="id" />
-        Status <input type="text" name="status" /><br />
         Planned ETA <input type="date" name="planned_eta" /><br />
         Supplier Code <input type="text" name="supplier_code" /><br />
         Supplier Name <input type="text" name="supplier_name" /><br />
@@ -109,17 +110,53 @@
     </div>
 </body>
 <script>
-    //Date formatter
+    // Other support functions
+    // Date formatter
     function formatDateShort(dateString) {
-    if (!dateString) return "";
+        if (!dateString) return "";
 
-    var d = new Date(dateString);
+        var d = new Date(dateString);
 
-    return d.toLocaleDateString("en-GB", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    });
+        return d.toLocaleDateString("en-GB", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        });
+    }
+
+    function calculateStatus(planned_eta, actual_eta) {
+        var today = new Date();
+
+        today.setHours(0,0,0,0); //remove time for comparison
+
+        var planned = new Date(planned_eta);
+        planned.setHours(0,0,0,0);
+
+        // Check if shipment is in transit, no actual_ETA
+        if (!actual_eta) {
+            if (planned > today) {
+                return "In transit";
+            } else {
+                return "Delayed";
+            }
+        }
+
+        // Check delivery status if on time or delayed
+        var actual = new Date(actual_eta);
+        actual.setHours(0,0,0,0);
+
+        if (actual > planned) {
+            return "Delivered late";
+        } else {
+            return "Delivered on time";
+        }
+    }
+    function formatDateForInput(dateString) {
+        if (!dateString) return "";
+
+        if (dateString.includes("-")) return dateString;
+
+        return dateString.split("/").reverse().join("-");
 }
     //Control functions
     function showCreate() {
@@ -142,13 +179,13 @@
         var shipment = getShipmentFromRow(rowElement);
         populateFormWithShipment(shipment);
     }
+    
 
     // CRUD functions
     function doCreate() {
         var form = document.getElementById("createUpdateForm");
         var shipment = {};
-
-        shipment.status = form.querySelector('input[name="status"]').value;
+        
         shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
         shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
         shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
@@ -159,6 +196,7 @@
         } else {
             shipment.actual_eta = actual_eta;
         }   
+        shipment.status = calculateStatus(shipment.planned_eta, shipment.actual_eta);
         shipment.item_code = form.querySelector('input[name="item_code"]').value;
         createShipmentAjax(shipment);
     }
@@ -167,8 +205,8 @@
         var shipment = getShipmentFromForm();
         var rowElement = document.getElementById(shipment.id);
         updateShipmentAjax(shipment);
+        shipment.status = calculateStatus(shipment.planned_eta, shipment.actual_eta);
         setShipmentInRow(rowElement, shipment);
-
         clearForm();
         showViewAll();
     }
@@ -191,7 +229,7 @@
         var cell1 = rowElement.insertCell(0);
         cell1.innerHTML = shipment.id;
         var cell2 = rowElement.insertCell(1);
-        cell2.innerHTML = shipment.status;
+        cell2.innerHTML = calculateStatus(shipment.planned_eta, shipment.actual_eta)
         var cell3 = rowElement.insertCell(2);
         cell3.innerHTML = formatDateShort(shipment.planned_eta);
         var cell4 = rowElement.insertCell(3);
@@ -212,7 +250,6 @@
     function clearForm() {
         var form = document.getElementById("createUpdateForm");
 
-        form.querySelector('input[name="status"]').value = "";
         form.querySelector('input[name="planned_eta"]').value = "";
         form.querySelector('input[name="supplier_code"]').value = "";
         form.querySelector('input[name="supplier_name"]').value = "";
@@ -221,7 +258,7 @@
     }
 
     function getShipmentFromRow(rowElement) {
-        var ship = {};
+        var shipment = {};
 
         shipment.id = rowElement.getAttribute("id");
         shipment.status = rowElement.cells[1].innerHTML;
@@ -235,19 +272,19 @@
 
     function setShipmentInRow(rowElement, shipment) {
         rowElement.cells[0].firstChild.textContent = shipment.id;
-        rowElement.cells[1].firstChild.textContent = shipment.status;
-        rowElement.cells[2].firstChild.textContent = shipment.planned_eta;
+        rowElement.cells[1].innerHTML = calculateStatus(shipment.planned_eta, shipment.actual_eta);
+        rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
         rowElement.cells[3].firstChild.textContent = shipment.supplier_code;
         rowElement.cells[4].firstChild.textContent = shipment.supplier_name;
-        rowElement.cells[5].firstChild.textContent = shipment.actual_eta;
+        rowElement.cells[5].innerHTML = formatDateShort(shipment.actual_eta);
         rowElement.cells[6].firstChild.textContent = shipment.item_code;
+       
     }
 
     function populateFormWithShipment(shipment) {
         var form = document.getElementById("createUpdateForm");
 
         form.querySelector('input[name="id"]').value = shipment.id;
-        form.querySelector('input[name="status"]').value = shipment.status;
         form.querySelector('input[name="planned_eta"]').value = formatDateForInput(shipment.planned_eta);
         form.querySelector('input[name="supplier_code"]').value = shipment.supplier_code;
         form.querySelector('input[name="supplier_name"]').value = shipment.supplier_name;
@@ -260,18 +297,26 @@
         var form = document.getElementById("createUpdateForm");
         var shipment = {};
         shipment.id = form.querySelector('input[name="id"]').value;
-        shipment.status = form.querySelector('input[name="status"]').value;
-        shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
+        
+        var planned_eta = form.querySelector('input[name="planned_eta"]',).value;
+        if (actual_eta === "") {
+            var tableValue = document.getElementById(shipment.id).cells[2].innerHTML;
+            planned_eta = formatDateForInput(tableValue); // convert back to YYYY-MM-DD
+        }
+        shipment.planned_eta = planned_eta;
+        
         shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
         shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
         
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
-            shipment.actual_eta = null;
-        } else {
-            shipment.actual_eta = actual_eta;
+            var tableValue = document.getElementById(shipment.id).cells[5].innerHTML;
+            actual_eta = formatDateForInput(tableValue);
         }
+        shipment.actual_eta = actual_eta;
+
         shipment.item_code = form.querySelector('input[name="item_code"]',).value;
+        
         return shipment;
     }
 
@@ -370,4 +415,9 @@ Accept empty actual_ETA: https://stackoverflow.com/questions/8796707/is-it-possi
 User input fields margin: https://stackoverflow.com/questions/61451796/how-to-style-input-fields-of-a-specific-html-form-with-css
 Date type input: https://www.w3schools.com/tags/att_input_type_date.asp
 Date format: https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript/60881661
+Date check for status: https://www.servicenow.com/community/itsm-forum/date-validation-if-date-is-7-days-from-today/td-p/3426138
+Date function for status: https://stackoverflow.com/questions/69167898/javascript-date-compare-html-table-with-compare-days-ago
+dae input formatting: https://stackoverflow.com/questions/25159330/how-to-convert-an-iso-date-to-the-date-format-yyyy-mm-dd
+Get current date value when no new date is selected in update function: https://stackoverflow.com/questions/3072233/getting-value-from-table-cell-in-javascript-not-jquery
+Converting date format:https://stackoverflow.com/questions/27087128/convert-dd-mm-yyyy-to-yyyy-mm-dd-format-using-javascript
 -->
