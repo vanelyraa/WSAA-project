@@ -59,6 +59,9 @@
             cursor: pointer;
             font-weight: bold;
         }
+        #createUpdateForm input {
+        margin-bottom: 10px; 
+        }
     </style>
     <title>Shipments</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -85,6 +88,7 @@
             </tr>
         </table>
     </div>
+    <div id="message" style="display: none;">This is my message</div>
 
     <div id="createUpdateForm" style="display: none">
         <h2>
@@ -93,26 +97,41 @@
         </h2>
         <input type="hidden" name="id" />
         Status <input type="text" name="status" /><br />
-        Planned ETA <input type="text" name="planned_eta" /><br />
+        Planned ETA <input type="date" name="planned_eta" /><br />
         Supplier Code <input type="text" name="supplier_code" /><br />
         Supplier Name <input type="text" name="supplier_name" /><br />
-        Actual ETA <input type="text" name="actual_eta" /><br />
+        Actual ETA <input type="date" name="actual_eta" /><br />
         Item Code <input type="text" name="item_code" /><br />
 
         <button onclick="doCreate()">Create</button>
         <button onclick="doUpdate()">Update</button>
+        <button onclick="showViewAll()">Back</button> <!--Button, return to main screen -->
     </div>
 </body>
 <script>
+    //Date formatter
+    function formatDateShort(dateString) {
+    if (!dateString) return "";
+
+    var d = new Date(dateString);
+
+    return d.toLocaleDateString("en-GB", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    });
+}
     //Control functions
     function showCreate() {
         document.getElementById("shipmentTable").style.display = "none";
         document.getElementById("createUpdateForm").style.display = "block";
+        document.getElementById("showCreateButton").style.display = "none"; //Hide Create button in create/update screen
     }
 
     function showViewAll() {
         document.getElementById("shipmentTable").style.display = "block";
         document.getElementById("createUpdateForm").style.display = "none";
+        document.getElementById("showCreateButton").style.display = "block"; //Add Create button again after hiding it
     }
 
     function showUpdate(buttonElement) {
@@ -130,18 +149,16 @@
         var shipment = {};
 
         shipment.status = form.querySelector('input[name="status"]').value;
-        shipment.planned_eta = form.querySelector(
-            'input[name="planned_eta"]',
-        ).value;
-        shipment.supplier_code = form.querySelector(
-            'input[name="supplier_code"]',
-        ).value;
-        shipment.supplier_name = form.querySelector(
-            'input[name="supplier_name"]',
-        ).value;
-        shipment.actual_eta = form.querySelector(
-            'input[name="actual_eta"]',
-        ).value;
+        shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
+        shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
+        shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
+        
+        var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
+        if (actual_eta === "") {
+            shipment.actual_eta = null;  //Accept empty actual ETA
+        } else {
+            shipment.actual_eta = actual_eta;
+        }   
         shipment.item_code = form.querySelector('input[name="item_code"]').value;
         createShipmentAjax(shipment);
     }
@@ -176,13 +193,13 @@
         var cell2 = rowElement.insertCell(1);
         cell2.innerHTML = shipment.status;
         var cell3 = rowElement.insertCell(2);
-        cell3.innerHTML = shipment.planned_eta;
+        cell3.innerHTML = formatDateShort(shipment.planned_eta);
         var cell4 = rowElement.insertCell(3);
         cell4.innerHTML = shipment.supplier_code;
         var cell5 = rowElement.insertCell(4);
         cell5.innerHTML = shipment.supplier_name;
         var cell6 = rowElement.insertCell(5);
-        cell6.innerHTML = shipment.actual_eta;
+        cell6.innerHTML = formatDateShort(shipment.actual_eta);
         var cell7 = rowElement.insertCell(6);
         cell7.innerHTML = shipment.item_code;
         var cell8 = rowElement.insertCell(7);
@@ -231,14 +248,10 @@
 
         form.querySelector('input[name="id"]').value = shipment.id;
         form.querySelector('input[name="status"]').value = shipment.status;
-        form.querySelector('input[name="planned_eta"]').value =
-            shipment.planned_eta;
-        form.querySelector('input[name="supplier_code"]').value =
-            shipment.supplier_code;
-        form.querySelector('input[name="supplier_name"]').value =
-            shipment.supplier_name;
-        form.querySelector('input[name="actual_eta"]').value =
-            shipment.actual_eta;
+        form.querySelector('input[name="planned_eta"]').value = formatDateForInput(shipment.planned_eta);
+        form.querySelector('input[name="supplier_code"]').value = shipment.supplier_code;
+        form.querySelector('input[name="supplier_name"]').value = shipment.supplier_name;
+        form.querySelector('input[name="actual_eta"]').value = formatDateForInput(shipment.actual_eta);
         form.querySelector('input[name="item_code"]').value = shipment.item_code;
         return shipment;
     }
@@ -246,25 +259,31 @@
     function getShipmentFromForm() {
         var form = document.getElementById("createUpdateForm");
         var shipment = {};
-        ((shipment.id = form.querySelector('input[name="id"]').value),
-            (shipment.status = form.querySelector('input[name="status"]').value),
-            (shipment.planned_eta = form.querySelector(
-                'input[name="planned_eta"]',
-            ).value),
-            (shipment.supplier_code = form.querySelector(
-                'input[name="supplier_code"]',
-            ).value),
-            (shipment.supplier_name = form.querySelector(
-                'input[name="supplier_name"]',
-            ).value),
-            (shipment.actual_eta = form.querySelector(
-                'input[name="actual_eta"]',
-            ).value),
-            (shipment.item_code = form.querySelector(
-                'input[name="item_code"]',
-            ).value));
+        shipment.id = form.querySelector('input[name="id"]').value;
+        shipment.status = form.querySelector('input[name="status"]').value;
+        shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
+        shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
+        shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
+        
+        var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
+        if (actual_eta === "") {
+            shipment.actual_eta = null;
+        } else {
+            shipment.actual_eta = actual_eta;
+        }
+        shipment.item_code = form.querySelector('input[name="item_code"]',).value;
         return shipment;
     }
+
+    //Succesfull shipment creation message
+    function showMessage(text, time) {
+    var o = document.getElementById("message");
+    o.style.display = "block";
+    o.innerHTML = text;
+    setTimeout(function() {
+         o.style.display = "none";
+    }, time);
+}
 
     // Ajax functions
     function getAllAjax() {
@@ -295,6 +314,7 @@
                 addShipmentToTable(shipment);
                 clearForm();
                 showViewAll();
+                showMessage("New shipment added", 2000);
             },
             error: function (xhr, status, error) {
                 console.log("error: " + status + " msg:" + error);
@@ -343,4 +363,11 @@ Heading settings: https://www.w3schools.com/tags/tag_hn.asp
 HTML color codes: https://htmlcolorcodes.com/
 Borders and hover over: https://www.tutorialspoint.com/article/how-to-create-a-comparison-table-with-css
 Paddings: https://www.w3schools.com/css/css_padding.asp
-Button styling: https://www.w3schools.com/css/css3_buttons.asp  -->
+Button styling: https://www.w3schools.com/css/css3_buttons.asp
+Back button: https://stackoverflow.com/questions/4629606/input-type-back-button  
+Success message: https://stackoverflow.com/questions/8677145/html-text-with-time-limit 
+Accept empty actual_ETA: https://stackoverflow.com/questions/8796707/is-it-possible-to-have-a-html-select-option-value-as-null-using-php
+User input fields margin: https://stackoverflow.com/questions/61451796/how-to-style-input-fields-of-a-specific-html-form-with-css
+Date type input: https://www.w3schools.com/tags/att_input_type_date.asp
+Date format: https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript/60881661
+-->
