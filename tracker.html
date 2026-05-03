@@ -409,7 +409,7 @@
     // Ajax functions
     function getAllAjax() {
         $.ajax({
-            url: "http://127.0.0.1:5000/shipments",
+            url: "/shipments",
             method: "GET",
             dataType: "JSON",
             success: function (result) {
@@ -425,7 +425,7 @@
 
     function createShipmentAjax(shipment) {
         $.ajax({
-            url: "http://127.0.0.1:5000/shipments",
+            url: "/shipments",
             method: "POST",
             data: JSON.stringify(shipment),
             dataType: "JSON",
@@ -445,7 +445,7 @@
 
     function updateShipmentAjax(shipment) {
         $.ajax({
-            url: "http://127.0.0.1:5000/shipments/" + encodeURI(shipment.id),
+            url: "/shipments/" + encodeURI(shipment.id),
             method: "PUT",
             data: JSON.stringify(shipment),
             dataType: "JSON",
@@ -461,7 +461,7 @@
 
     function deleteShipmentAjax(id) {
         $.ajax({
-            url: "http://127.0.0.1:5000/shipments/" + encodeURI(id),
+            url: "/shipments/" + encodeURI(id),
             method: "DELETE",
             dataType: "JSON",
             contentType: "application/json; charset=utf-8",
