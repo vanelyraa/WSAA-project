@@ -1,8 +1,5 @@
-mysql = {
-    'host':"127.0.0.1",
-    'user':"root",
-    'password':"0205",
-    'database':"shipmenttracker"
+sqlite = {
+    "database": "shipments.db"
 }
 
 # References

@@ -1,43 +1,32 @@
-import mysql.connector
+import sqlite3
 import dbconfig as cfg
+from os import path
 
 class TrackerDAO:
     connection = ""
     cursor = ""
-    host = ""
-    user = ""
-    password = ""
+    host = ""    
     database = ""
 
     def __init__(self):
-        self.host = cfg.mysql["host"]
-        self.user = cfg.mysql["user"]
-        self.password = cfg.mysql["password"]
-        self.database = cfg.mysql["database"]
+        self.database = cfg.sqlite["database"]
 
     def getcursor(self):
-        self.connection = mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            database=self.database,
-        )
+        ROOT = path.dirname(path.realpath(__file__))
+        self.connection = sqlite3.connect(path.join(ROOT,self.database))
         self.cursor = self.connection.cursor()
         return self.cursor
 
     def closeAll(self):
-        self.connection.close()
-        self.cursor.close()
+        self.connection.close()        
 
     def getAll(self):
         cursor = self.getcursor()
         sql = "select * from shipments"
         cursor.execute(sql)
         results = cursor.fetchall()
-        returnArray = []
-        #print(results)
-        for result in results:
-            #print(result)
+        returnArray = []        
+        for result in results:            
             returnArray.append(self.convertToDictionary(result))
         
         self.closeAll()
@@ -45,7 +34,7 @@ class TrackerDAO:
     
     def findByID(self, id):
         cursor = self.getcursor()
-        sql = "select * from shipments where id = %s"
+        sql = "select * from shipments where id = ?"
         values = (id,)
 
         cursor.execute(sql, values)
@@ -56,7 +45,7 @@ class TrackerDAO:
 
     def create(self, shipment):
         cursor = self.getcursor()
-        sql = "insert into shipments (status, planned_eta, supplier_code, supplier_name, actual_eta, item_code) values (%s,%s,%s,%s,%s,%s)"
+        sql = "insert into shipments (status, planned_eta, supplier_code, supplier_name, actual_eta, item_code) values (?,?,?,?,?,?)"
         values = (
             shipment.get("status"),
             shipment.get("planned_eta"),
@@ -76,7 +65,7 @@ class TrackerDAO:
 
     def update(self, id, shipment):
         cursor = self.getcursor()
-        sql = "update shipments set status=%s, planned_eta=%s, supplier_code=%s, supplier_name=%s, actual_eta=%s, item_code=%s where id =%s"
+        sql = "update shipments set status=?, planned_eta=?, supplier_code=?, supplier_name=?, actual_eta=?, item_code=? where id =?"
         print(f"update shipment {shipment}")
         values = (
             shipment.get("status"),
@@ -93,7 +82,7 @@ class TrackerDAO:
             
     def delete(self, id):
         cursor = self.getcursor()
-        sql="delete from shipments where id = %s"
+        sql="delete from shipments where id = ?"
         values = (id,)
         cursor.execute(sql, values)
         self.connection.commit()
