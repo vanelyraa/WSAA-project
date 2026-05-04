@@ -5,6 +5,8 @@
         body {
             background-color: #c1f4be;
             font-family: Arial;
+            margin: 0;
+            padding: 20px;
         }
 
         h1 {
@@ -21,10 +23,9 @@
             width: 100%;
             margin: auto;
             border-collapse: collapse;
-            background-color: #e8e8e8;
-            border-left: 1px solid #0d4a28;
-            border-right: 1px solid #0d4a28;
+            background-color: #e8e8e8;            
             margin-top: 20px;
+            table-layout: auto;
         }
 
         th {
@@ -73,7 +74,7 @@
 
 <body>
     <h1>SHIPMENTS TRACKER</h1>
-    <div>
+    <divstyle="display:flex; gap:10px; align-items:center; margin-bottom:10px;>
         <button id="showCreateButton" onclick="showCreate()">Create</button>
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
         
