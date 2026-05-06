@@ -22,13 +22,14 @@ class TrackerDAO:
 
     def getAll(self):
         cursor = self.getcursor()
+        
         sql = "select * from shipments"
         cursor.execute(sql)
         results = cursor.fetchall()
         returnArray = []        
-        for result in results:            
-            returnArray.append(self.convertToDictionary(result))
         
+        for result in results:            
+            returnArray.append(self.convertToDictionary(result))        
         self.closeAll()
         return returnArray
     
