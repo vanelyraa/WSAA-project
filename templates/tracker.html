@@ -74,7 +74,7 @@
 
 <body>
     <h1>SHIPMENTS TRACKER</h1>
-    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+    <div id="searchControls" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
         <button id="showCreateButton" onclick="showCreate()">Create</button>
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
         
@@ -85,6 +85,12 @@
         <option value="Delivered on time">Delivered on time</option>
         <option value="Delivered late">Delivered late</option>
     </select>
+    </div>
+    <div id="supplierForm" style="margin-bottom:20px; padding:15px; border-radius:8px;">    
+        <h3 style="color:#0d4a28;">Add new Supplier</h3>        
+        <input type="text" id="newSupplierName" placeholder="Supplier name" style="padding:5px;">
+        <input type="text" id="newSupplierCountry" placeholder="Country" style="padding:5px;">
+        <button onclick="addSupplier()">Add Supplier</button>
     </div>
     <div>
         <table class="table" id="shipmentTable">
@@ -227,17 +233,20 @@
         document.getElementById("shipmentTable").style.display = "none";
         document.getElementById("createUpdateForm").style.display = "block";
         document.getElementById("showCreateButton").style.display = "none"; //Hide Create button in create/update screen
+        document.getElementById("searchControls").style.display = "none"; //Hide search field in create/update screen
     }
 
     function showViewAll() {
         document.getElementById("shipmentTable").style.display = "block";
         document.getElementById("createUpdateForm").style.display = "none";
         document.getElementById("showCreateButton").style.display = "block"; //Add Create button again after hiding it
+        document.getElementById("searchControls").style.display = "flex";
     }
 
     function showUpdate(buttonElement) {
         document.getElementById("shipmentTable").style.display = "none";
         document.getElementById("createUpdateForm").style.display = "block";
+        document.getElementById("searchControls").style.display = "none";
 
         var rowElement = buttonElement.parentNode.parentNode;
         var shipment = getShipmentFromRow(rowElement);
@@ -348,7 +357,7 @@
         }
 
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
-        rowElement.cells[3].innerHTML = shipment.supplier_id;
+        rowElement.cells[3].innerHTML = shipment.supplier_name;
         rowElement.cells[4].innerHTML = shipment.country || "";
         rowElement.cells[5].innerHTML = formatDateShort(shipment.actual_eta);
         rowElement.cells[6].firstChild.textContent = shipment.item_code;
@@ -393,12 +402,26 @@
 
     //Succesfull shipment creation message
     function showMessage(text, time) {
-    var o = document.getElementById("message");
-    o.style.display = "block";
-    o.innerHTML = text;
-    setTimeout(function() {
-         o.style.display = "none";
-    }, time);
+        var o = document.getElementById("message");
+        o.style.display = "block";
+        o.innerHTML = text;
+        setTimeout(function() {
+            o.style.display = "none";
+        }, time);
+    }
+
+    function addSupplier() {
+    var supplier = {};
+
+    supplier.supplier_name = document.getElementById("newSupplierName").value;
+    supplier.country = document.getElementById("newSupplierCountry").value;
+
+    if (supplier.supplier_name === "" || supplier.country === "") {
+        showMessage("Please fill all supplier fields", 2000);
+        return;
+    }
+
+    createSupplierAjax(supplier);
 }
 
 
@@ -428,6 +451,41 @@
         }
     });
 }
+
+    function createSupplierAjax(supplier) {
+
+    $.ajax({
+        url: "/suppliers",
+        method: "POST",
+        data: JSON.stringify(supplier),
+        dataType: "JSON",
+        contentType: "application/json; charset=utf-8",
+
+        success: function(result) {
+            var select = document.getElementById("supplierSelect");
+
+            var option = document.createElement("option");
+
+            option.value = result.supplier_id;
+            option.text = result.supplier_name;
+
+            option.setAttribute("data-name", result.supplier_name);
+            option.setAttribute("data-country", result.country);
+
+            select.appendChild(option);
+            
+            document.getElementById("newSupplierName").value = "";
+            document.getElementById("newSupplierCountry").value = "";
+
+            showMessage("Supplier added successfully", 2000);
+        },
+
+        error: function(xhr, status, error) {
+            console.log("error: " + status + " msg:" + error);
+        }
+    });
+}
+
     function getAllAjax() {
         $.ajax({
             url: "/shipments",
