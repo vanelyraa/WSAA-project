@@ -74,7 +74,7 @@
 
 <body>
     <h1>SHIPMENTS TRACKER</h1>
-    <divstyle="display:flex; gap:10px; align-items:center; margin-bottom:10px;>
+    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
         <button id="showCreateButton" onclick="showCreate()">Create</button>
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
         
@@ -92,8 +92,8 @@
                 <th>ID</th>
                 <th>Status</th>
                 <th>Planned ETA</th>
-                <th>Supplier Code</th>
-                <th>Supplier Name</th>
+                <th>Supplier</th>
+                <th>Country</th>
                 <th>Actual ETA</th>
                 <th>Item Code</th>
                 <th>Update</th>
@@ -110,8 +110,7 @@
         </h2>
         <input type="hidden" name="id" />
         Planned ETA <input type="date" name="planned_eta" /><br />
-        Supplier Code <input type="text" name="supplier_code" /><br />
-        Supplier Name <input type="text" name="supplier_name" /><br />
+        Supplier <select name="supplier_id" id="supplierSelect"></select><br />
         Actual ETA <input type="date" name="actual_eta" /><br />
         Item Code <input type="text" name="item_code" /><br />
 
@@ -252,8 +251,7 @@
         var shipment = {};
         
         shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
-        shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
-        shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
+        shipment.supplier_id = form.querySelector('select[name="supplier_id"]').value;
         
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
@@ -304,9 +302,9 @@
         var cell3 = rowElement.insertCell(2);
         cell3.innerHTML = formatDateShort(shipment.planned_eta);
         var cell4 = rowElement.insertCell(3);
-        cell4.innerHTML = shipment.supplier_code;
+        cell4.innerHTML = shipment.supplier_name || shipment.supplier_id;
         var cell5 = rowElement.insertCell(4);
-        cell5.innerHTML = shipment.supplier_name;
+        cell5.innerHTML = shipment.country || "";
         var cell6 = rowElement.insertCell(5);
         cell6.innerHTML = formatDateShort(shipment.actual_eta);
         var cell7 = rowElement.insertCell(6);
@@ -322,8 +320,7 @@
         var form = document.getElementById("createUpdateForm");
 
         form.querySelector('input[name="planned_eta"]').value = "";
-        form.querySelector('input[name="supplier_code"]').value = "";
-        form.querySelector('input[name="supplier_name"]').value = "";
+        form.querySelector('select[name="supplier_id"]').selectedIndex = 0;        
         form.querySelector('input[name="actual_eta"]').value = "";
         form.querySelector('input[name="item_code"]').value = "";
     }
@@ -334,8 +331,8 @@
         shipment.id = rowElement.getAttribute("id");
         shipment.status = rowElement.cells[1].innerHTML;
         shipment.planned_eta = rowElement.cells[2].innerHTML;
-        shipment.supplier_code = rowElement.cells[3].innerHTML;
-        shipment.supplier_name = rowElement.cells[4].innerHTML;
+        shipment.supplier_id = rowElement.cells[3].innerHTML;
+        shipment.country = rowElement.cells[4].innerHTML;
         shipment.actual_eta = rowElement.cells[5].innerHTML;
         shipment.item_code = rowElement.cells[6].innerHTML;
         return shipment;
@@ -351,8 +348,8 @@
         }
 
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
-        rowElement.cells[3].firstChild.textContent = shipment.supplier_code;
-        rowElement.cells[4].firstChild.textContent = shipment.supplier_name;
+        rowElement.cells[3].innerHTML = shipment.supplier_id;
+        rowElement.cells[4].innerHTML = shipment.country || "";
         rowElement.cells[5].innerHTML = formatDateShort(shipment.actual_eta);
         rowElement.cells[6].firstChild.textContent = shipment.item_code;
        
@@ -363,8 +360,7 @@
 
         form.querySelector('input[name="id"]').value = shipment.id;
         form.querySelector('input[name="planned_eta"]').value = formatDateForInput(shipment.planned_eta);
-        form.querySelector('input[name="supplier_code"]').value = shipment.supplier_code;
-        form.querySelector('input[name="supplier_name"]').value = shipment.supplier_name;
+        form.querySelector('select[name="supplier_id"]').value = shipment.supplier_id;        
         form.querySelector('input[name="actual_eta"]').value = formatDateForInput(shipment.actual_eta);
         form.querySelector('input[name="item_code"]').value = shipment.item_code;
         return shipment;
@@ -375,16 +371,14 @@
         var shipment = {};
         shipment.id = form.querySelector('input[name="id"]').value;
         
-        var planned_eta = form.querySelector('input[name="planned_eta"]',).value;
-        if (actual_eta === "") {
-            var tableValue = document.getElementById(shipment.id).cells[2].innerHTML;
-            planned_eta = formatDateForInput(tableValue); // convert back to YYYY-MM-DD
-        }
+        planned_eta = form.querySelector('input[name="planned_eta"]',).value;
         shipment.planned_eta = planned_eta;
-        
-        shipment.supplier_code = form.querySelector('input[name="supplier_code"]',).value;
-        shipment.supplier_name = form.querySelector('input[name="supplier_name"]',).value;
-        
+
+        shipment.supplier_id = form.querySelector('select[name="supplier_id"]').value;
+        var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0];
+        shipment.supplier_name = options.getAttribute("data-name");
+        shipment.country = options.getAttribute("data-country");
+
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
             var tableValue = document.getElementById(shipment.id).cells[5].innerHTML;
@@ -407,7 +401,33 @@
     }, time);
 }
 
+
     // Ajax functions
+
+    function getSuppliersAjax() {
+    $.ajax({
+        url: "/suppliers",
+        method: "GET",
+        dataType: "JSON",
+        success: function(result) {
+            var select = document.getElementById("supplierSelect");
+            select.innerHTML = "";
+
+            for (supplier of result) {
+                var option = document.createElement("option");
+                option.value = supplier.supplier_id;
+                option.text = supplier.supplier_name;
+                option.setAttribute("data-name",supplier.supplier_name);
+                option.setAttribute("data-country", supplier.country);
+
+                select.appendChild(option);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log("error: " + status + " msg:" + error);
+        }
+    });
+}
     function getAllAjax() {
         $.ajax({
             url: "/shipments",
@@ -475,6 +495,7 @@
         });
     }
 
+    getSuppliersAjax();
     getAllAjax();
 </script>
 
@@ -501,4 +522,11 @@ Search bar, filter data: https://stackoverflow.com/questions/43622127/filtering-
 Background color line: https://www.sitepoint.com/background-colors-javascript/
 Delete confirmation: https://stackoverflow.com/questions/12073352/use-confirm-as-a-condition-to-if
 Dropdown filter: https://www.geeksforgeeks.org/html/html-dropdown/
+Select tag: https://www.w3schools.com/tags/att_select_name.asp
+Reset dropdown list: https://community.adobe.com/questions-582/how-to-reset-a-dropdown-list-back-to-the-default-value-after-a-selection-is-made-273709#:~:text=One%20modern%20way%20of%20doing,selectedIndex%5B0%5D.
+Get supplier name inspiration 1:https://stackoverflow.com/questions/2230704/jquery-getting-custom-attribute-from-selected-option
+Get supplier name inspiration 2: https://stackoverflow.com/questions/8345666/on-select-change-get-data-attribute-value
+Get supplier name inspiration 3:https://stackoverflow.com/questions/11957677/html-how-to-get-custom-attribute-of-option-tag-in-dropdown
+Supplier Ajax inspo 1: https://stackoverflow.com/questions/6601028/how-to-populate-the-options-of-a-select-element-in-javascript
+Supplier Ajax inspo 2:https://jakarta.ee/specifications/faces/2.3/jsdoc/jsf-uncompressed.js.html
 -->

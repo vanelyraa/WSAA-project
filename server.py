@@ -7,6 +7,7 @@ cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 from trackerDAO import trackerDAO
+from supplierDAO import supplierDAO
 
 @app.route('/')
 @cross_origin()
@@ -36,11 +37,10 @@ def create():
         abort(400)
     shipment = {
         "status": request.json["status"],
-        "planned_eta": request.json["planned_eta"],
-        "supplier_code": request.json["supplier_code"],
-        "supplier_name": request.json["supplier_name"],
+        "planned_eta": request.json["planned_eta"],        
         "actual_eta": request.json["actual_eta"],
-        "item_code": request.json["item_code"]
+        "item_code": request.json["item_code"],
+        "supplier_id": request.json["supplier_id"]
     }
     addedShipment = trackerDAO.create(shipment)
     return jsonify(addedShipment)
@@ -60,10 +60,8 @@ def update(id):
         foundShipment["status"] = reqJson["status"]
     if "planned_eta" in reqJson:
         foundShipment["planned_eta"] = reqJson["planned_eta"]
-    if "supplier_code" in reqJson:
-        foundShipment["supplier_code"] = reqJson["supplier_code"]
-    if "supplier_name" in reqJson:
-        foundShipment["supplier_name"] = reqJson["supplier_name"]
+    if "supplier_id" in reqJson:
+        foundShipment["supplier_id"] = reqJson["supplier_id"]    
     if "actual_eta" in reqJson:
         foundShipment["actual_eta"] = reqJson["actual_eta"]
     if "item_code" in reqJson:
@@ -78,6 +76,28 @@ def update(id):
 def delete(id):
     trackerDAO.delete(id)
     return jsonify({"done": True})
+
+# Supplier routes
+# GET all suppliers
+@app.route("/suppliers")
+@cross_origin()
+def getAllSuppliers():
+    results = supplierDAO.getAll()
+    return jsonify(results)
+
+# Create supplier
+@app.route("/suppliers", methods=["POST"])
+@cross_origin()
+
+def createSupplier():
+    if not request.json:
+        abort(400)
+    supplier = {
+        "supplier_name": request.json["supplier_name"],
+        "country": request.json["country"]
+    }
+    addedSupplier = supplierDAO.create(supplier)
+    return jsonify(addedSupplier)
 
 # Run application
 if __name__ == "__main__":
