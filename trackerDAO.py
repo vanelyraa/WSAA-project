@@ -100,7 +100,7 @@ class TrackerDAO:
         self.closeAll()
 
     def convertToDictionary(self, resultLine):
-        attkeys=["id","status","planned_eta","supplier_id","actual_eta","item_code"]
+        attkeys=["id","status","planned_eta","supplier_name","country","actual_eta","item_code"]
         shipment = {}
         currentkey = 0
         for attrib in resultLine:
