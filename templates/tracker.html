@@ -20,7 +20,7 @@
         }
 
         table {
-            width: 100%;
+            width: auto;            
             margin: auto;
             border-collapse: collapse;
             background-color: #e8e8e8;            
@@ -63,6 +63,9 @@
         #createUpdateForm input {
             margin-bottom: 10px; 
         }
+        #supplierSelect {
+            margin-bottom: 10px;
+        }
         
     </style>
     <title>Shipments</title>
@@ -74,8 +77,15 @@
 
 <body>
     <h1>SHIPMENTS TRACKER</h1>
-    <div id="searchControls" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-        <button id="showCreateButton" onclick="showCreate()">Create</button>
+    <div id="supplierForm" style="margin-bottom:10px; padding:0 15px; border-radius:8px;">    
+        <h3 style="color:#0d4a28; margin-top:0">Add new Supplier</h3>        
+        <input type="text" id="newSupplierName" placeholder="Supplier name" style="padding:5px;">
+        <input type="text" id="newSupplierCountry" placeholder="Country" style="padding:5px;">
+        <button onclick="addSupplier()">Add Supplier</button>
+    </div>
+    <hr style="border:none; border-top:1px solid #21b865; margin:20px 0;">
+    <div id="searchControls" style="margin-bottom:10px; padding:0 15px; border-radius:8px;">
+        <h3 style="color:#0d4a28; margin-top:0">Search</h3>        
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
         
         <select id="statusFilter">       
@@ -84,13 +94,11 @@
         <option value="Delayed">Delayed</option>
         <option value="Delivered on time">Delivered on time</option>
         <option value="Delivered late">Delivered late</option>
-    </select>
+        </select>
     </div>
-    <div id="supplierForm" style="margin-bottom:20px; padding:15px; border-radius:8px;">    
-        <h3 style="color:#0d4a28;">Add new Supplier</h3>        
-        <input type="text" id="newSupplierName" placeholder="Supplier name" style="padding:5px;">
-        <input type="text" id="newSupplierCountry" placeholder="Country" style="padding:5px;">
-        <button onclick="addSupplier()">Add Supplier</button>
+    
+    <div style="padding:0 15px; margin-top:40px;">
+        <button id="showCreateButton" onclick="showCreate()">Create Supplier</button>
     </div>
     <div>
         <table class="table" id="shipmentTable">
@@ -265,7 +273,7 @@
         var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0];
         shipment.supplier_name = options.getAttribute("data-name");
         shipment.country = options.getAttribute("data-country");
-        
+
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
             shipment.actual_eta = null;  //Accept empty actual ETA
@@ -592,4 +600,5 @@ Get supplier name inspiration 2: https://stackoverflow.com/questions/8345666/on-
 Get supplier name inspiration 3:https://stackoverflow.com/questions/11957677/html-how-to-get-custom-attribute-of-option-tag-in-dropdown
 Supplier Ajax inspo 1: https://stackoverflow.com/questions/6601028/how-to-populate-the-options-of-a-select-element-in-javascript
 Supplier Ajax inspo 2:https://jakarta.ee/specifications/faces/2.3/jsdoc/jsf-uncompressed.js.html
+Hr tag: https://medium.com/web-dev-survey-from-kyoto/everything-about-hr-when-to-use-it-and-how-to-style-it-fd17b66573
 -->
