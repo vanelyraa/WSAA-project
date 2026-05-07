@@ -260,9 +260,11 @@
         var shipment = {};
         
         shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
-        
+
         shipment.supplier_id = form.querySelector('select[name="supplier_id"]').value;
         var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0];
+        shipment.supplier_name = options.getAttribute("data-name");
+        shipment.country = options.getAttribute("data-country");
         
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
@@ -512,8 +514,9 @@
             dataType: "JSON",
             contentType: "application/json; charset=utf-8",
             success: function (result) {
-                shipment.id = result.id;
-                addShipmentToTable(shipment);
+                result.supplier_name = shipment.supplier_name;
+                result.country = shipment.country;
+                addShipmentToTable(result);
                 clearForm();
                 showViewAll();
                 showMessage("New shipment added", 2000);
