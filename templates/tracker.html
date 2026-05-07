@@ -260,7 +260,7 @@
         var shipment = {};
         
         shipment.planned_eta = form.querySelector('input[name="planned_eta"]',).value;
-        shipment.supplier_id = form.querySelector('select[name="supplier_id"]').value;
+        var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0];
         
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
         if (actual_eta === "") {
