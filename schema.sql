@@ -12,7 +12,7 @@ CREATE TABLE shipments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     status TEXT,
     planned_eta TEXT,
-    supplier_id INTEGER,    
+    supplier_id INTEGER,       
     actual_eta TEXT,
     item_code TEXT,
     FOREIGN KEY (supplier_id)

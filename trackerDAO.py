@@ -23,7 +23,19 @@ class TrackerDAO:
     def getAll(self):
         cursor = self.getcursor()
         
-        sql = "select * from shipments"
+        sql = """
+        select
+            shipments.id,
+            shipments.status,
+            shipments.planned_eta,
+            suppliers.supplier_name,
+            suppliers.country,
+            shipments.actual_eta,
+            shipments.item_code
+        from shipments
+        join suppliers
+        on shipments.supplier_id = suppliers.supplier_id
+        """
         cursor.execute(sql)
         results = cursor.fetchall()
         returnArray = []        
@@ -46,12 +58,11 @@ class TrackerDAO:
 
     def create(self, shipment):
         cursor = self.getcursor()
-        sql = "insert into shipments (status, planned_eta, supplier_code, supplier_name, actual_eta, item_code) values (?,?,?,?,?,?)"
+        sql = "insert into shipments (status, planned_eta, supplier_id, actual_eta, item_code) values (?,?,?,?,?)"
         values = (
             shipment.get("status"),
             shipment.get("planned_eta"),
-            shipment.get("supplier_code"),
-            shipment.get("supplier_name"),
+            shipment.get("supplier_id"),            
             shipment.get("actual_eta"),
             shipment.get("item_code")
         )
@@ -66,13 +77,12 @@ class TrackerDAO:
 
     def update(self, id, shipment):
         cursor = self.getcursor()
-        sql = "update shipments set status=?, planned_eta=?, supplier_code=?, supplier_name=?, actual_eta=?, item_code=? where id =?"
+        sql = "update shipments set status=?, planned_eta=?, supplier_id=?, actual_eta=?, item_code=? where id =?"
         print(f"update shipment {shipment}")
         values = (
             shipment.get("status"),
             shipment.get("planned_eta"),
-            shipment.get("supplier_code"),
-            shipment.get("supplier_name"),
+            shipment.get("supplier_id"),            
             shipment.get("actual_eta"),
             shipment.get("item_code"),
             id
@@ -90,7 +100,7 @@ class TrackerDAO:
         self.closeAll()
 
     def convertToDictionary(self, resultLine):
-        attkeys=["id","status","planned_eta","supplier_code","supplier_name","actual_eta","item_code"]
+        attkeys=["id","status","planned_eta","supplier_id","actual_eta","item_code"]
         shipment = {}
         currentkey = 0
         for attrib in resultLine:
