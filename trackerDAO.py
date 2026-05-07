@@ -47,7 +47,21 @@ class TrackerDAO:
     
     def findByID(self, id):
         cursor = self.getcursor()
-        sql = "select * from shipments where id = ?"
+        sql = """
+        select
+            shipments.id,
+            shipments.status,
+            shipments.planned_eta,
+            suppliers.supplier_name,
+            suppliers.country,
+            shipments.actual_eta,
+            shipments.item_code
+
+        from shipments
+        join suppliers
+        on shipments.supplier_id = suppliers.supplier_id
+        where shipments.id = ?
+        """
         values = (id,)
 
         cursor.execute(sql, values)
