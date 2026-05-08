@@ -1,22 +1,65 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, render_template, redirect
 from flask_cors import CORS, cross_origin
-from flask import render_template
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 app = Flask(__name__, static_url_path="", static_folder=".")
+
+app.secret_key = "secret123"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login" 
+
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 from trackerDAO import trackerDAO
 from supplierDAO import supplierDAO
 
+users = {"admin": {"password": "admin123"}}
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username  
+
+@login_manager.user_loader
+def load_user(username):
+    if username in users:
+        return User(username)
+    return None
+
 @app.route('/')
 @cross_origin()
+@login_required
 def index():
     return render_template("tracker.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username in users and users[username]["password"] == password:
+            login_user(User(username))
+            return redirect("/")
+        else:
+            return abort(401)
+
+    else:
+        return ('''
+        <h2>Login</h2>
+        <form action="" method="post">
+            <p><input type="text" name="username" placeholder="Username">
+            <p><input type="password" name="password" placeholder="Password">
+            <p><input type="submit" value="Login">
+        </form>''')
 
 # GET all shipments
 @app.route("/shipments")
 @cross_origin()
+@login_required
 def getAll():
     results = trackerDAO.getAll()
     return jsonify(results)
@@ -24,6 +67,7 @@ def getAll():
 # Find by ID
 @app.route("/shipments/<int:id>")
 @cross_origin()
+@login_required
 def findById(id):
     foundShipment = trackerDAO.findByID(id)
     return jsonify(foundShipment)
@@ -31,7 +75,7 @@ def findById(id):
 # Create
 @app.route("/shipments", methods=["POST"])
 @cross_origin()
-
+@login_required
 def create():
     if not request.json:
         abort(400)
@@ -48,6 +92,7 @@ def create():
 # Update
 @app.route("/shipments/<int:id>", methods=["PUT"])
 @cross_origin()
+@login_required
 def update(id):
     foundShipment = trackerDAO.findByID(id)
     if not foundShipment:
@@ -73,6 +118,7 @@ def update(id):
 # Delete
 @app.route("/shipments/<int:id>", methods=["DELETE"])
 @cross_origin()
+@login_required
 def delete(id):
     trackerDAO.delete(id)
     return jsonify({"done": True})
@@ -81,6 +127,7 @@ def delete(id):
 # GET all suppliers
 @app.route("/suppliers")
 @cross_origin()
+@login_required
 def getAllSuppliers():
     results = supplierDAO.getAll()
     return jsonify(results)
@@ -88,7 +135,7 @@ def getAllSuppliers():
 # Create supplier
 @app.route("/suppliers", methods=["POST"])
 @cross_origin()
-
+@login_required
 def createSupplier():
     if not request.json:
         abort(400)
@@ -99,9 +146,20 @@ def createSupplier():
     addedSupplier = supplierDAO.create(supplier)
     return jsonify(addedSupplier)
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/login")
+
 # Run application
 if __name__ == "__main__":
     app.run(debug = True)
 
 
 # Render template: https://stackoverflow.com/questions/63333562/best-practice-of-flask-route-for-app-route-index-or-index-html
+# User authentication: https://www.geeksforgeeks.org/python/flask-login-without-database-python/ delete?
+# User authentication: https://stackoverflow.com/questions/66738115/simple-flask-login-example-is-this-the-correct-way
+# User authentication: https://nrodrig1.medium.com/flask-login-no-flask-sqlalchemy-d62310bb43e3
+# User authentication: https://stackoverflow.com/questions/65590876/flask-login-without-database
+# User authentication: https://stackoverflow.com/questions/66738115/simple-flask-login-example-is-this-the-correct-way
