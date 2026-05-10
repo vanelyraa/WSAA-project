@@ -64,8 +64,10 @@ class TrackerDAO:
         """
         values = (id,)
 
-        cursor.execute(sql, values)
+        cursor.execute(sql, values)        
         result = cursor.fetchone()
+        if result is None:
+            return None
         returnvalue = self.convertToDictionary(result)
         self.closeAll()
         return returnvalue
@@ -92,7 +94,7 @@ class TrackerDAO:
     def update(self, id, shipment):
         cursor = self.getcursor()
         sql = "update shipments set status=?, planned_eta=?, supplier_id=?, actual_eta=?, item_code=? where id =?"
-        print(f"update shipment {shipment}")
+        # print(f"update shipment {shipment}")
         values = (
             shipment.get("status"),
             shipment.get("planned_eta"),
@@ -125,4 +127,4 @@ class TrackerDAO:
 trackerDAO = TrackerDAO()
 
 #Reference:
-#Python anywhere lecture
+## PythonAnywhere ecture material from module

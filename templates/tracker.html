@@ -99,7 +99,7 @@
     </div>
     
     <div style="padding:0 15px; margin-top:40px;">
-        <button id="showCreateButton" onclick="showCreate()">Create Supplier</button>
+        <button id="showCreateButton" onclick="showCreate()">Create Shipment</button>
     </div>
     <div>
         <table class="table" id="shipmentTable">
@@ -288,9 +288,9 @@
 
     function doUpdate() {
         var shipment = getShipmentFromForm();
-        var rowElement = document.getElementById(shipment.id);
-        updateShipmentAjax(shipment);
+        var rowElement = document.getElementById(shipment.id);        
         shipment.status = calculateStatus(shipment.planned_eta, shipment.actual_eta);
+        updateShipmentAjax(shipment);
         setShipmentInRow(rowElement, shipment);
         clearForm();
         showViewAll();
@@ -367,7 +367,9 @@
         rowElement.cells[1].innerHTML = status;        
         if (status === "Delayed") {
             rowElement.style.backgroundColor = "#ffcccc";
-        }
+        } else {
+            rowElement.style.backgroundColor = "";
+}
 
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
         rowElement.cells[3].innerHTML = shipment.supplier_name;
