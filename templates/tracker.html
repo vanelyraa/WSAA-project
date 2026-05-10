@@ -20,8 +20,7 @@
         }
 
         table {
-            width: auto;            
-            margin: auto;
+            width: 100%;           
             border-collapse: collapse;
             background-color: #e8e8e8;            
             margin-top: 20px;
@@ -101,7 +100,7 @@
     <div style="padding:0 15px; margin-top:40px;">
         <button id="showCreateButton" onclick="showCreate()">Create Shipment</button>
     </div>
-    <div>
+    <div id="tableContainer" style="width:100%;">
         <table class="table" id="shipmentTable">
             <tr>
                 <th>ID</th>
@@ -239,23 +238,24 @@
 
     //Control functions
     function showCreate() {
-        document.getElementById("shipmentTable").style.display = "none";
+        document.getElementById("tableContainer").style.display = "none";
         document.getElementById("createUpdateForm").style.display = "block";
         document.getElementById("showCreateButton").style.display = "none"; //Hide Create button in create/update screen
         document.getElementById("searchControls").style.display = "none"; //Hide search field in create/update screen
     }
 
     function showViewAll() {
-        document.getElementById("shipmentTable").style.display = "block";
+        document.getElementById("tableContainer").style.display = "block";
         document.getElementById("createUpdateForm").style.display = "none";
         document.getElementById("showCreateButton").style.display = "block"; //Add Create button again after hiding it
-        document.getElementById("searchControls").style.display = "flex";
+        document.getElementById("searchControls").style.display = "block";
     }
 
     function showUpdate(buttonElement) {
-        document.getElementById("shipmentTable").style.display = "none";
+        document.getElementById("tableContainer").style.display = "none";
         document.getElementById("createUpdateForm").style.display = "block";
-        document.getElementById("searchControls").style.display = "none";
+        document.getElementById("searchControls").style.display = "none";  
+        document.getElementById("showCreateButton").style.display = "none";      
 
         var rowElement = buttonElement.parentNode.parentNode;
         var shipment = getShipmentFromRow(rowElement);
