@@ -1,3 +1,4 @@
+# SQLite database configuration
 sqlite = {
     "database": "shipments.db"
 }

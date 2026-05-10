@@ -2,6 +2,7 @@ import sqlite3
 import dbconfig as cfg
 from os import path
 
+# Supplier DAO
 class SupplierDAO:
 
     def __init__(self):

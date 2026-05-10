@@ -2,13 +2,15 @@
 
 <head>
     <style>
+        /* CSS styling configuration */
+        /* Body page and background */
         body {
             background-color: #c1f4be;
             font-family: Arial;
             margin: 0;
             padding: 20px;
         }
-
+        /* Main title */
         h1 {
             display: block;
             font-size: 2em;
@@ -18,7 +20,7 @@
             text-align: center;
             color: #0d4a28;
         }
-
+        /* Table layout */
         table {
             width: 100%;           
             border-collapse: collapse;
@@ -26,7 +28,7 @@
             margin-top: 20px;
             table-layout: auto;
         }
-
+        /* Table header */
         th {
             background-color: #4fa776;
             color: white;
@@ -34,22 +36,22 @@
             text-align: center;
             border-bottom: 1px solid #0d4a28;
         }
-
+        /* Table cells */
         td {
             padding: 10px;
             text-align: center;
             border: none;
             border-bottom: 1px solid #0d4a28;
         }
-
+        /* Table even rows background */
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-
+        /* Table row hover effect */
         tr:hover {
             background-color: #dcdcdc;
         }
-
+        /* Button */
         button {
             background-color: #4fa776;
             color: white;
@@ -59,39 +61,44 @@
             cursor: pointer;
             font-weight: bold;
         }
+        /* Form input spacing */
         #createUpdateForm input {
             margin-bottom: 10px; 
         }
+        /* Supplier dropdown spacing */
         #supplierSelect {
             margin-bottom: 10px;
         }
         
     </style>
     <title>Shipments</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!-- jQuery library -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"><!-- jQuery UI stylesheet -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script><!-- jQuery UI library -->
 
 </head>
 
-<body>
+<body><!-- Logout button -->
     <div style="text-align:right; margin-bottom:10px;">
     <button onclick="logout()"
         style="padding:6px 12px;border-radius:50%;font-size:16px;">X</button>
-</div>
-    <h1>SHIPMENTS TRACKER</h1>     
+</div><!-- App title -->
+    <h1>SHIPMENTS TRACKER</h1> 
 
+    <!-- Supplier form: title and user input -->
     <div id="supplierForm" style="margin-bottom:10px; padding:0 15px; border-radius:8px;">    
         <h3 style="color:#0d4a28; margin-top:0">Add new Supplier</h3>        
         <input type="text" id="newSupplierName" placeholder="Supplier name" style="padding:5px;">
         <input type="text" id="newSupplierCountry" placeholder="Country" style="padding:5px;">
         <button onclick="addSupplier()">Add Supplier</button>
     </div>
+    <!-- Search controls and title -->
     <hr style="border:none; border-top:1px solid #21b865; margin:20px 0;">
     <div id="searchControls" style="margin-bottom:10px; padding:0 15px; border-radius:8px;">
         <h3 style="color:#0d4a28; margin-top:0">Search</h3>        
         <input type="text" id="searchInput" placeholder="Search shipment" onkeyup="filterTable()" style="padding:5px;">
         
+        <!-- Status filter -->
         <select id="statusFilter">       
         <option value="">Show all - status</option>
         <option value="In transit">In transit</option>
@@ -101,9 +108,12 @@
         </select>
     </div>
     
+    <!-- Create shipment button -->
     <div style="padding:0 15px; margin-top:40px;">
         <button id="showCreateButton" onclick="showCreate()">Create Shipment</button>
     </div>
+
+    <!-- Shipments table -->
     <div id="tableContainer" style="width:100%;">
         <table class="table" id="shipmentTable">
             <tr>
@@ -119,8 +129,9 @@
             </tr>
         </table>
     </div>
-    <div id="message" style="display: none;">This is my message</div>
+    <div id="message" style="display: none;">This is my message</div><!-- Shipment creation message -->
 
+    <!-- Update shipment form, title and user inputs -->
     <div id="createUpdateForm" style="display: none">
         <h2>
             <span id="createLabel">Create or </span>
@@ -152,6 +163,7 @@
         });
     }
 
+    //Calculate status function (delayed, in transit, delivered)
     function calculateStatus(planned_eta, actual_eta) {
         var today = new Date();
 
@@ -179,6 +191,7 @@
             return "Delivered on time";
         }
     }
+    // Formating date for input field
     function formatDateForInput(dateString) {
         if (!dateString) return "";
 
@@ -187,24 +200,28 @@
         return dateString.split("/").reverse().join("-");
     }
     
+    // Filtering table rows from user search input
     function filterTable() {
     var input = document.getElementById("searchInput");
     var filter = input.value.toUpperCase();
     var table = document.getElementById("shipmentTable");
     var tr = table.getElementsByTagName("tr");
-
+    
+    // Getting searchable table columns
     for (var i = 1; i < tr.length; i++) {
         var tdStatus = tr[i].getElementsByTagName("td")[1];
         var tdSupplierCode = tr[i].getElementsByTagName("td")[3];
         var tdSupplierName = tr[i].getElementsByTagName("td")[4];
         var tdItemCode = tr[i].getElementsByTagName("td")[6];
 
+        // Getting text values from the selected table columns for searching
         if (tdStatus || tdSupplierCode || tdSupplierName || tdItemCode) {
             var txtStatus = tdStatus.textContent || tdStatus.innerText;
             var txtCode = tdSupplierCode.textContent || tdSupplierCode.innerText;
             var txtName = tdSupplierName.textContent || tdSupplierName.innerText;
             var txtItem = tdItemCode.textContent || tdItemCode.innerText;
-
+            
+            // Checking if search input matches any value from table
             if (
                 txtStatus.toUpperCase().indexOf(filter) > -1 ||
                 txtCode.toUpperCase().indexOf(filter) > -1 ||
@@ -218,9 +235,9 @@
         }
     }
 }
-
+    //Delete product from database
     function RemoveProduct() {
-        return confirm("Are you sure you want to delete this shipment?");
+        return confirm("Are you sure you want to delete this shipment?"); //Confirming if user want to delete shipment
     }
     $('#statusFilter').change(function() {
     var selected = $(this).val();
@@ -268,6 +285,7 @@
     
 
     // CRUD functions
+    // Create
     function doCreate() {
         var form = document.getElementById("createUpdateForm");
         var shipment = {};
@@ -289,7 +307,7 @@
         shipment.item_code = form.querySelector('input[name="item_code"]').value;
         createShipmentAjax(shipment);
     }
-
+    //Update
     function doUpdate() {
         var shipment = getShipmentFromForm();
         var rowElement = document.getElementById(shipment.id);        
@@ -299,7 +317,7 @@
         clearForm();
         showViewAll();
     }
-
+    // Delete
     function doDelete(r) {
         if (!RemoveProduct()) return;
         var tableElement = document.getElementById("shipmentTable");
@@ -310,27 +328,29 @@
     }
 
     // Table functions
+    // Add shipment
     function addShipmentToTable(shipment) {
         var tableElement = document.getElementById("shipmentTable");
         var rowElement = tableElement.insertRow(-1);
 
+        //Creating and filling shipment table rows
         rowElement.setAttribute("id", shipment.id);
         rowElement.setAttribute("data-supplier-id", shipment.supplier_id);
         var cell1 = rowElement.insertCell(0);
         cell1.innerHTML = shipment.id;
         var cell2 = rowElement.insertCell(1);
-        var status = calculateStatus(shipment.planned_eta, shipment.actual_eta);
+        var status = calculateStatus(shipment.planned_eta, shipment.actual_eta); //Calculating shipment status based on date inputs
         cell2.innerHTML = status;
 
         if (status === "Delayed") {
-            rowElement.style.backgroundColor = "#ffcccc";
+            rowElement.style.backgroundColor = "#ffcccc"; //Reset backgroung color if shipment status change from delayed
 }
         var cell3 = rowElement.insertCell(2);
         cell3.innerHTML = formatDateShort(shipment.planned_eta);
         var cell4 = rowElement.insertCell(3);
         cell4.innerHTML = shipment.supplier_name || shipment.supplier_id;
         var cell5 = rowElement.insertCell(4);
-        cell5.innerHTML = shipment.country || "";
+        cell5.innerHTML = shipment.country || ""; //Country is not a user input, comes from supplier 
         var cell6 = rowElement.insertCell(5);
         cell6.innerHTML = formatDateShort(shipment.actual_eta);
         var cell7 = rowElement.insertCell(6);
@@ -342,6 +362,7 @@
     }
 
     // Forms
+    // Clear all form input fields
     function clearForm() {
         var form = document.getElementById("createUpdateForm");
 
@@ -351,6 +372,7 @@
         form.querySelector('input[name="item_code"]').value = "";
     }
 
+    // Gets shipment data from selected table row
     function getShipmentFromRow(rowElement) {
         var shipment = {};
 
@@ -364,26 +386,27 @@
         return shipment;
     }
 
+    // Updates shipment 
     function setShipmentInRow(rowElement, shipment) {
         rowElement.cells[0].firstChild.textContent = shipment.id;
-        
+        //Calculating shipment status and resenting backgroung color if not "delayed" anymore
         var status = calculateStatus(shipment.planned_eta, shipment.actual_eta);        
         rowElement.cells[1].innerHTML = status;        
         if (status === "Delayed") {
             rowElement.style.backgroundColor = "#ffcccc";
         } else {
             rowElement.style.backgroundColor = "";
-}
+        }
 
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
         rowElement.cells[3].innerHTML = shipment.supplier_name;
-        rowElement.setAttribute("data-supplier-id", shipment.supplier_id);
+        rowElement.setAttribute("data-supplier-id", shipment.supplier_id);//store supplier Id inside table row
         rowElement.cells[4].innerHTML = shipment.country || "";
         rowElement.cells[5].innerHTML = formatDateShort(shipment.actual_eta);
         rowElement.cells[6].firstChild.textContent = shipment.item_code;
        
     }
-
+    // Fills create/update form with selected shipment
     function populateFormWithShipment(shipment) {
         var form = document.getElementById("createUpdateForm");
 
@@ -394,7 +417,7 @@
         form.querySelector('input[name="item_code"]').value = shipment.item_code;
         return shipment;
     }
-
+    // Gets shipment data from create/update form
     function getShipmentFromForm() {
         var form = document.getElementById("createUpdateForm");
         var shipment = {};
@@ -404,12 +427,12 @@
         shipment.planned_eta = planned_eta;
 
         shipment.supplier_id = form.querySelector('select[name="supplier_id"]').value;
-        var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0];
+        var options = form.querySelector('select[name="supplier_id"]').selectedOptions[0]; //gets the current selected item from the dropdown
         shipment.supplier_name = options.getAttribute("data-name");
         shipment.country = options.getAttribute("data-country");
 
         var actual_eta = form.querySelector('input[name="actual_eta"]',).value;
-        if (actual_eta === "") {
+        if (actual_eta === "") { //Keeps existing actual ETA if input is empty, accepts empty actual ETA
             var tableValue = document.getElementById(shipment.id).cells[5].innerHTML;
             actual_eta = formatDateForInput(tableValue);
         }
@@ -429,86 +452,89 @@
             o.style.display = "none";
         }, time);
     }
-
+    
+    //Add supplier function
     function addSupplier() {
-    var supplier = {};
+        var supplier = {};
 
-    supplier.supplier_name = document.getElementById("newSupplierName").value;
-    supplier.country = document.getElementById("newSupplierCountry").value;
-
-    if (supplier.supplier_name === "" || supplier.country === "") {
-        showMessage("Please fill all supplier fields", 2000);
-        return;
+        supplier.supplier_name = document.getElementById("newSupplierName").value;
+        supplier.country = document.getElementById("newSupplierCountry").value;
+        
+        // Checks if supplier fields are empty, if yes, return message to user
+        if (supplier.supplier_name === "" || supplier.country === "") {
+            showMessage("Please fill all supplier fields", 2000); 
+            return;
+        }
+        createSupplierAjax(supplier);
     }
 
-    createSupplierAjax(supplier);
-}
+    //Logout function
     function logout() {
         window.location.href = "/logout";
-    }
+    }    
 
 
     // Ajax functions
-
+    // Get supplier data from the server
     function getSuppliersAjax() {
-    $.ajax({
-        url: "/suppliers",
-        method: "GET",
-        dataType: "JSON",
-        success: function(result) {
-            var select = document.getElementById("supplierSelect");
-            select.innerHTML = "";
+        $.ajax({
+            url: "/suppliers",
+            method: "GET",
+            dataType: "JSON",
+            success: function(result) {
+                var select = document.getElementById("supplierSelect");
+                select.innerHTML = "";
+                //Creating and adding new suppliers to dropdown, storing supplier ID, name, and country
+                for (supplier of result) {
+                    var option = document.createElement("option");                     
+                    option.value = supplier.supplier_id;
+                    option.text = supplier.supplier_name;
+                    option.setAttribute("data-name",supplier.supplier_name);
+                    option.setAttribute("data-country", supplier.country);
+                    select.appendChild(option); 
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
+            }
+        });
+    }
 
-            for (supplier of result) {
-                var option = document.createElement("option");
-                option.value = supplier.supplier_id;
-                option.text = supplier.supplier_name;
-                option.setAttribute("data-name",supplier.supplier_name);
-                option.setAttribute("data-country", supplier.country);
+    // Sends new supplier data to server
+    function createSupplierAjax(supplier) {
+        $.ajax({
+            url: "/suppliers",
+            method: "POST",
+            data: JSON.stringify(supplier),
+            dataType: "JSON",
+            contentType: "application/json; charset=utf-8",
+
+            success: function(result) {
+                var select = document.getElementById("supplierSelect");
+
+                var option = document.createElement("option");//dropdown
+
+                option.value = result.supplier_id;
+                option.text = result.supplier_name;
+
+                option.setAttribute("data-name", result.supplier_name);
+                option.setAttribute("data-country", result.country);
 
                 select.appendChild(option);
+                
+                document.getElementById("newSupplierName").value = "";
+                document.getElementById("newSupplierCountry").value = "";
+
+                showMessage("Supplier added successfully", 2000);
+            },
+
+            error: function(xhr, status, error) {
+                console.log("error: " + status + " msg:" + error);
             }
-        },
-        error: function(xhr, status, error) {
-            console.log("error: " + status + " msg:" + error);
-        }
-    });
-}
+        });
+    }
 
-    function createSupplierAjax(supplier) {
-
-    $.ajax({
-        url: "/suppliers",
-        method: "POST",
-        data: JSON.stringify(supplier),
-        dataType: "JSON",
-        contentType: "application/json; charset=utf-8",
-
-        success: function(result) {
-            var select = document.getElementById("supplierSelect");
-
-            var option = document.createElement("option");
-
-            option.value = result.supplier_id;
-            option.text = result.supplier_name;
-
-            option.setAttribute("data-name", result.supplier_name);
-            option.setAttribute("data-country", result.country);
-
-            select.appendChild(option);
-            
-            document.getElementById("newSupplierName").value = "";
-            document.getElementById("newSupplierCountry").value = "";
-
-            showMessage("Supplier added successfully", 2000);
-        },
-
-        error: function(xhr, status, error) {
-            console.log("error: " + status + " msg:" + error);
-        }
-    });
-}
-
+    // Get all shipment data from server
     function getAllAjax() {
         $.ajax({
             url: "/shipments",
@@ -525,6 +551,7 @@
         });
     }
 
+    // Send new shipment data to server
     function createShipmentAjax(shipment) {
         $.ajax({
             url: "/shipments",
@@ -538,7 +565,7 @@
                 addShipmentToTable(result);
                 clearForm();
                 showViewAll();
-                showMessage("New shipment added", 2000);
+                showMessage("New shipment added", 2000);//Shipment added success message and display timing
             },
             error: function (xhr, status, error) {
                 console.log("error: " + status + " msg:" + error);
@@ -546,6 +573,7 @@
         });
     }
 
+    // Send updated shipment data to server
     function updateShipmentAjax(shipment) {
         $.ajax({
             url: "/shipments/" + encodeURI(shipment.id),
@@ -562,6 +590,7 @@
         });
     }
 
+    // Sends shipment deletion request to server
     function deleteShipmentAjax(id) {
         $.ajax({
             url: "/shipments/" + encodeURI(id),

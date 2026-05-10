@@ -2,24 +2,29 @@ import sqlite3
 import dbconfig as cfg
 from os import path
 
+# TrackerDAO class and database variables
 class TrackerDAO:
     connection = ""
     cursor = ""
     host = ""    
     database = ""
 
+    # Getting database name from configuration file
     def __init__(self):
         self.database = cfg.sqlite["database"]
 
+    # Createing sqlite3 connection and returning cursor
     def getcursor(self):
         ROOT = path.dirname(path.realpath(__file__))
         self.connection = sqlite3.connect(path.join(ROOT,self.database))
         self.cursor = self.connection.cursor()
         return self.cursor
 
+    # Close database connection
     def closeAll(self):
         self.connection.close()        
 
+    # Get all shipment records from database
     def getAll(self):
         cursor = self.getcursor()
         
@@ -46,6 +51,7 @@ class TrackerDAO:
         self.closeAll()
         return returnArray
     
+    # Find shipment by ID
     def findByID(self, id):
         cursor = self.getcursor()
         sql = """
@@ -67,13 +73,14 @@ class TrackerDAO:
         values = (id,)
 
         cursor.execute(sql, values)        
-        result = cursor.fetchone()
-        if result is None:
+        result = cursor.fetchone() # Fetch one db result
+        if result is None: # Return none if shipment is not found
             return None
         returnvalue = self.convertToDictionary(result)
         self.closeAll()
         return returnvalue
 
+    # Create new shipment in database
     def create(self, shipment):
         cursor = self.getcursor()
         sql = "insert into shipments (status, planned_eta, supplier_id, actual_eta, item_code) values (?,?,?,?,?)"
@@ -93,6 +100,7 @@ class TrackerDAO:
         self.closeAll()
         return shipment
 
+    # Updte shipment
     def update(self, id, shipment):
         cursor = self.getcursor()
         sql = "update shipments set status=?, planned_eta=?, supplier_id=?, actual_eta=?, item_code=? where id =?"
@@ -108,7 +116,8 @@ class TrackerDAO:
         cursor.execute(sql, values)
         self.connection.commit()
         self.closeAll()
-            
+
+    # Delete shipment        
     def delete(self, id):
         cursor = self.getcursor()
         sql="delete from shipments where id = ?"
@@ -117,6 +126,7 @@ class TrackerDAO:
         self.connection.commit()
         self.closeAll()
 
+    # Convert database result to dictionary format
     def convertToDictionary(self, resultLine):
         attkeys=["id","status","planned_eta","supplier_id","supplier_name","country","actual_eta","item_code"]
         shipment = {}
@@ -129,4 +139,4 @@ class TrackerDAO:
 trackerDAO = TrackerDAO()
 
 #Reference:
-## PythonAnywhere ecture material from module
+## PythonAnywhere lecture material from module
