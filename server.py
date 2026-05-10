@@ -163,3 +163,4 @@ if __name__ == "__main__":
 # User authentication: https://nrodrig1.medium.com/flask-login-no-flask-sqlalchemy-d62310bb43e3
 # User authentication: https://stackoverflow.com/questions/65590876/flask-login-without-database
 # User authentication: https://stackoverflow.com/questions/66738115/simple-flask-login-example-is-this-the-correct-way
+# Logout: https://stackoverflow.com/questions/47670382/how-to-logout-a-user-from-the-database-with-flask-login

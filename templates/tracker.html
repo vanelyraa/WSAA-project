@@ -75,6 +75,10 @@
 </head>
 
 <body>
+    <div style="text-align:right; margin-bottom:10px;">
+    <button onclick="logout()"
+        style="padding:6px 12px;border-radius:50%;font-size:16px;">X</button>
+</div>
     <h1>SHIPMENTS TRACKER</h1>     
 
     <div id="supplierForm" style="margin-bottom:10px; padding:0 15px; border-radius:8px;">    
@@ -311,7 +315,7 @@
         var rowElement = tableElement.insertRow(-1);
 
         rowElement.setAttribute("id", shipment.id);
-
+        rowElement.setAttribute("data-supplier-id", shipment.supplier_id);
         var cell1 = rowElement.insertCell(0);
         cell1.innerHTML = shipment.id;
         var cell2 = rowElement.insertCell(1);
@@ -353,7 +357,7 @@
         shipment.id = rowElement.getAttribute("id");
         shipment.status = rowElement.cells[1].innerHTML;
         shipment.planned_eta = rowElement.cells[2].innerHTML;
-        shipment.supplier_id = rowElement.cells[3].innerHTML;
+        shipment.supplier_id = rowElement.getAttribute("data-supplier-id");
         shipment.country = rowElement.cells[4].innerHTML;
         shipment.actual_eta = rowElement.cells[5].innerHTML;
         shipment.item_code = rowElement.cells[6].innerHTML;
@@ -373,6 +377,7 @@
 
         rowElement.cells[2].firstChild.textContent = formatDateShort(shipment.planned_eta);
         rowElement.cells[3].innerHTML = shipment.supplier_name;
+        rowElement.setAttribute("data-supplier-id", shipment.supplier_id);
         rowElement.cells[4].innerHTML = shipment.country || "";
         rowElement.cells[5].innerHTML = formatDateShort(shipment.actual_eta);
         rowElement.cells[6].firstChild.textContent = shipment.item_code;
@@ -438,6 +443,9 @@
 
     createSupplierAjax(supplier);
 }
+    function logout() {
+        window.location.href = "/logout";
+    }
 
 
     // Ajax functions
