@@ -28,6 +28,7 @@ class TrackerDAO:
             shipments.id,
             shipments.status,
             shipments.planned_eta,
+            shipments.supplier_id,
             suppliers.supplier_name,
             suppliers.country,
             shipments.actual_eta,
@@ -52,6 +53,7 @@ class TrackerDAO:
             shipments.id,
             shipments.status,
             shipments.planned_eta,
+            shipments.supplier_id,
             suppliers.supplier_name,
             suppliers.country,
             shipments.actual_eta,
@@ -116,7 +118,7 @@ class TrackerDAO:
         self.closeAll()
 
     def convertToDictionary(self, resultLine):
-        attkeys=["id","status","planned_eta","supplier_name","country","actual_eta","item_code"]
+        attkeys=["id","status","planned_eta","supplier_id","supplier_name","country","actual_eta","item_code"]
         shipment = {}
         currentkey = 0
         for attrib in resultLine:
